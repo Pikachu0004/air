@@ -21,6 +21,43 @@ function resolveApiKey(clientKey) {
   return '';
 }
 
+// In-memory model cache to avoid repeated discovery calls
+let cachedModelPath = null;
+let cachedApiVersion = 'v1beta';
+
+async function discoverModel(apiKey) {
+  if (cachedModelPath) return { apiVersion: cachedApiVersion, modelPath: cachedModelPath };
+
+  const versions = ['v1beta', 'v1'];
+  for (const ver of versions) {
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/${ver}/models?key=${apiKey}`);
+      if (res.ok) {
+        const data = await res.json();
+        const models = (data.models || []).filter(m =>
+          Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent')
+        );
+
+        if (models.length > 0) {
+          const preferred =
+            models.find(m => m.name.includes('gemini-2.0-flash') && !m.name.includes('exp')) ||
+            models.find(m => m.name.includes('gemini-1.5-flash') && !m.name.includes('latest')) ||
+            models.find(m => m.name.includes('gemini-1.5-flash-latest')) ||
+            models.find(m => m.name.includes('gemini-2.0-flash-exp')) ||
+            models.find(m => m.name.includes('flash')) ||
+            models[0];
+
+          cachedApiVersion = ver;
+          cachedModelPath = preferred.name;
+          return { apiVersion: cachedApiVersion, modelPath: cachedModelPath };
+        }
+      }
+    } catch (e) {}
+  }
+
+  return { apiVersion: 'v1beta', modelPath: 'models/gemini-1.5-flash' };
+}
+
 export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -38,7 +75,8 @@ export default async function handler(req, res) {
       status: 'ok',
       geminiConfigured: Boolean(key),
       keyPrefix: key ? `${key.slice(0, 6)}...${key.slice(-4)}` : null,
-      model: process.env.GEMINI_MODEL || 'gemini-1.5-flash'
+      model: cachedModelPath || 'gemini-1.5-flash',
+      apiVersion: cachedApiVersion
     });
   }
 
@@ -67,45 +105,69 @@ Rules:
 
   let lastError = null;
 
-  // 1. Google Gemini (Free Tier / Official API) with multi-model fallback
+  // 1. Google Gemini via Model Discovery & Adaptive Routing
   if (geminiKey) {
-    const candidateModels = [
-      process.env.GEMINI_MODEL || 'gemini-1.5-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-pro'
+    const discovered = await discoverModel(geminiKey);
+    const targetAttempts = [
+      { ver: discovered.apiVersion, model: discovered.modelPath },
+      { ver: 'v1beta', model: 'models/gemini-1.5-flash' },
+      { ver: 'v1', model: 'models/gemini-1.5-flash' },
+      { ver: 'v1beta', model: 'models/gemini-2.0-flash' },
+      { ver: 'v1', model: 'models/gemini-2.0-flash' },
+      { ver: 'v1beta', model: 'models/gemini-1.5-flash-latest' },
+      { ver: 'v1beta', model: 'models/gemini-2.0-flash-exp' }
     ];
 
-    for (const model of candidateModels) {
+    const seen = new Set();
+    const attempts = targetAttempts.filter(a => {
+      const k = `${a.ver}:${a.model}`;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+
+    for (const attempt of attempts) {
+      const cleanModel = attempt.model.startsWith('models/') ? attempt.model : `models/${attempt.model}`;
+      const url = `https://generativelanguage.googleapis.com/${attempt.ver}/${cleanModel}:generateContent?key=${geminiKey}`;
+
       try {
-        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const r = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\nUser Question: ${q}` }] }],
-            generationConfig: { temperature: 0.35, maxOutputTokens: 600 }
+            contents: [
+              {
+                parts: [{ text: `${systemPrompt}\n\nUser Question: ${q}` }]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.35,
+              maxOutputTokens: 600
+            }
           })
         });
 
         const j = await r.json();
         if (j.error) {
-          lastError = j.error.message || `Error code ${j.error.code}`;
-          console.error(`Gemini model ${model} error:`, lastError);
-          continue; // Try next candidate model
+          lastError = j.error.message || `Error ${j.error.code}`;
+          continue;
         }
 
         const rawText = j.candidates?.[0]?.content?.parts?.[0]?.text || '';
         if (rawText) {
           const cleanHtml = rawText.replace(/^```html\s*|\s*```$/gi, '').trim();
+          cachedApiVersion = attempt.ver;
+          cachedModelPath = cleanModel;
           return res.status(200).json({
             html: cleanHtml,
-            engine: model,
+            engine: cleanModel.replace('models/', ''),
+            apiVersion: attempt.ver,
             provider: 'Google Gemini',
             geminiSuccess: true
           });
         }
       } catch (err) {
         lastError = err.message;
-        console.error(`Gemini fetch error on ${model}:`, err.message);
       }
     }
   }
