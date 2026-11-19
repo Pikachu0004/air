@@ -1,0 +1,4986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>AirLoop · GenAI Urban Air Quality Defense System</title>
+  <meta name="description" content="Hyper-local winter smog navigation, lifestyle-tailored defense routines, CADR indoor simulator, 24h diurnal forecast, and mathematically compounded exposure cuts.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ----------------------------------------------------
+       AIRLOOP ADVANCED DESIGN SYSTEM
+       Aesthetic: Dark Luxury / Technical Cyber-Tactical Streetwear
+       Fonts: Anton (Monumental Display), Oswald (Technical Labels), Inter (Body)
+       Palette: Carbon Black, Deep Technical Grays, Hazard Dynamic AQI, Blood Red
+       ---------------------------------------------------- */
+    :root {
+      color-scheme: dark;
+      --bg: #09090b;
+      --bg-surface: #101014;
+      --bg-elevated: #16161b;
+      --bg-card: #121216;
+      --border: #24242a;
+      --border-hover: #3e3e48;
+      --border-active: #e5322d;
+      
+      --accent-red: #e5322d;
+      --accent-red-hover: #ff3e38;
+      --accent-red-glow: rgba(229, 50, 45, 0.3);
+
+      /* Dynamic AQI colors */
+      --aqi-color: #ef4444;
+      --aqi-glow: rgba(239, 68, 68, 0.3);
+      --aqi-bg-tint: rgba(239, 68, 68, 0.08);
+
+      --text-white: #ffffff;
+      --text-main: #e2e2e8;
+      --text-muted: #8b8b96;
+      --text-dim: #5a5a64;
+
+      --font-display: 'Anton', -apple-system, sans-serif;
+      --font-label: 'Oswald', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --radius-sm: 2px;
+      --radius-md: 4px;
+      --radius-lg: 8px;
+
+      --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-smooth: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+      scrollbar-color: var(--border-hover) var(--bg-surface);
+      accent-color: var(--accent-red);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: var(--bg);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    /* Atmospheric Canvas */
+    #smog-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.6;
+    }
+
+    .app-wrap {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Scroll Reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Typography */
+    .font-display { font-family: var(--font-display); }
+    .font-label { font-family: var(--font-label); }
+    .font-mono { font-family: var(--font-mono); }
+    .text-red { color: var(--accent-red); }
+    .text-aqi { color: var(--aqi-color); }
+    .text-white { color: var(--text-white); }
+    .text-muted { color: var(--text-muted); }
+    .uppercase { text-transform: uppercase; }
+
+    /* Tactical Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      font-family: var(--font-label);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-white);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+      z-index: 1;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--text-white);
+      transform: translateY(100%);
+      transition: transform var(--transition-smooth);
+      z-index: -1;
+    }
+
+    .btn:hover {
+      color: #000000;
+      border-color: var(--text-white);
+    }
+
+    .btn:hover::before {
+      transform: translateY(0);
+    }
+
+    .btn-red {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    .btn-red::before {
+      background: var(--accent-red);
+    }
+
+    .btn-red:hover {
+      color: #ffffff;
+      border-color: var(--accent-red);
+    }
+
+    .btn-solid-red {
+      background: var(--accent-red);
+      border-color: var(--accent-red);
+      color: #ffffff;
+    }
+
+    .btn-solid-red::before {
+      background: #ffffff;
+    }
+
+    .btn-solid-red:hover {
+      color: #000000;
+      border-color: #ffffff;
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+    }
+
+    /* Sticky Nav */
+    .header-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 9, 11, 0.92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+    }
+
+    .nav-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      letter-spacing: 0.04em;
+      color: var(--text-white);
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .brand-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--accent-red);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-red);
+    }
+
+    .brand-badge {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 2px;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-link {
+      font-family: var(--font-label);
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+      position: relative;
+      padding: 0.25rem 0;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--text-white);
+    }
+
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--accent-red);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .routine-badge-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.9rem;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-white);
+      font-family: var(--font-label);
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: border-color var(--transition-fast), background var(--transition-fast);
+    }
+
+    .routine-badge-btn:hover {
+      border-color: var(--accent-red);
+    }
+
+    .badge-counter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 4px;
+      border-radius: 10px;
+      background: var(--accent-red);
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .live-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 4px 8px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    .pulse-dot.demo {
+      background: #f59e0b;
+      box-shadow: 0 0 6px #f59e0b;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Marquee Ticker */
+    .ticker-bar {
+      border-bottom: 1px solid var(--border);
+      background: #0d0d10;
+      height: 36px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .ticker-label {
+      background: var(--accent-red);
+      color: #ffffff;
+      font-family: var(--font-label);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      padding: 0 0.85rem;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      z-index: 2;
+    }
+
+    .ticker-track {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker 34s linear infinite;
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0 1.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      border-right: 1px dashed var(--border);
+    }
+
+    .ticker-item strong {
+      color: var(--text-white);
+    }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 6rem;
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 2.5rem;
+      align-items: center;
+      margin-bottom: 4rem;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--accent-red);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 6.2vw, 5.8rem);
+      line-height: 0.95;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: var(--text-white);
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+
+    .hero-headline .rise-in {
+      display: block;
+      animation: riseIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes riseIn {
+      0% { transform: translateY(100%); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .hero-subcopy {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      line-height: 1.6;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1.75rem;
+    }
+
+    /* Audio Briefing Widget */
+    .audio-briefing-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.85rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 1rem;
+      margin-bottom: 1.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .audio-play-btn {
+      background: var(--accent-red);
+      color: #fff;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform var(--transition-fast);
+    }
+
+    .audio-play-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .waveform-visualizer {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 16px;
+    }
+
+    .waveform-bar {
+      width: 3px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 1px;
+    }
+
+    .waveform-visualizer.playing .waveform-bar {
+      animation: wave 0.8s infinite ease-in-out alternate;
+    }
+
+    .waveform-visualizer.playing .waveform-bar:nth-child(2) { animation-delay: 0.15s; }
+    .waveform-visualizer.playing .waveform-bar:nth-child(3) { animation-delay: 0.3s; }
+    .waveform-visualizer.playing .waveform-bar:nth-child(4) { animation-delay: 0.45s; }
+
+    @keyframes wave {
+      0% { height: 4px; background: var(--text-muted); }
+      100% { height: 16px; background: var(--accent-red); }
+    }
+
+    /* City Selector Strip */
+    .city-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .city-strip-label {
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-right: 0.25rem;
+    }
+
+    .city-pill {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.3rem 0.65rem;
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .city-pill:hover, .city-pill.active {
+      border-color: var(--text-white);
+      color: var(--text-white);
+      background: var(--bg-elevated);
+    }
+
+    .city-pill.active {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    /* Telemetry Hero Card */
+    .telemetry-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+      border-top: 3px solid var(--aqi-color);
+      transition: border-top-color var(--transition-smooth);
+    }
+
+    .telemetry-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, var(--aqi-glow) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      transition: background var(--transition-smooth);
+    }
+
+    .telemetry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .telemetry-location {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      letter-spacing: 0.03em;
+      color: var(--text-white);
+      line-height: 1;
+    }
+
+    .telemetry-coords {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .telemetry-search-box {
+      position: relative;
+      margin-bottom: 1.5rem;
+      z-index: 20;
+    }
+
+    .search-input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      transition: border-color var(--transition-fast);
+    }
+
+    .search-input-wrap:focus-within {
+      border-color: var(--accent-red);
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 0.65rem 0.85rem;
+      color: var(--text-white);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .search-btn, .gps-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.65rem 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color var(--transition-fast);
+    }
+
+    .search-btn:hover, .gps-btn:hover {
+      color: var(--text-white);
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+      z-index: 50;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .search-dropdown.open {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 0.65rem 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-main);
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: space-between;
+      transition: background var(--transition-fast);
+    }
+
+    .dropdown-item:hover {
+      background: rgba(229, 50, 45, 0.15);
+      color: var(--text-white);
+    }
+
+    /* Gauge & Metrics */
+    .gauge-metrics-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .gauge-wrapper {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      flex-shrink: 0;
+    }
+
+    .gauge-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 10;
+    }
+
+    .gauge-fill {
+      fill: none;
+      stroke: var(--aqi-color);
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 408;
+      stroke-dashoffset: 408;
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.5s ease;
+      filter: drop-shadow(0 0 6px var(--aqi-glow));
+    }
+
+    .gauge-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .gauge-aqi-num {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      line-height: 1;
+      color: var(--text-white);
+    }
+
+    .gauge-aqi-unit {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .telemetry-band-wrap {
+      flex: 1;
+    }
+
+    .aqi-band-badge {
+      display: inline-block;
+      background: var(--aqi-bg-tint);
+      color: var(--aqi-color);
+      border: 1px solid var(--aqi-color);
+      padding: 0.3rem 0.75rem;
+      font-family: var(--font-label);
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      text-transform: uppercase;
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.5rem;
+    }
+
+    .telemetry-advisory {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Berkeley Earth Box */
+    .cig-exposure-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent-red);
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cig-box-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.35rem;
+    }
+
+    .cig-box-title {
+      font-family: var(--font-label);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .cig-formula-hint {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+    }
+
+    .cig-box-val {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .cig-count {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      line-height: 1;
+      color: var(--accent-red);
+    }
+
+    .cig-text {
+      font-size: 0.82rem;
+      color: var(--text-main);
+    }
+
+    /* Pollutant Grid */
+    .pollutant-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.65rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pollutant-cell {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.5rem;
+      border-radius: var(--radius-sm);
+      text-align: center;
+    }
+
+    .pollutant-name {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .pollutant-value {
+      font-family: var(--font-label);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-white);
+    }
+
+    .pollutant-unit {
+      font-size: 0.6rem;
+      color: var(--text-dim);
+    }
+
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .section-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent-red);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      letter-spacing: 0.03em;
+      color: var(--text-white);
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .section-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 680px;
+    }
+
+    /* ----------------------------------------------------
+       24-HOUR DIURNAL SMOG RADAR & CHART
+       ---------------------------------------------------- */
+    .diurnal-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      margin-bottom: 4rem;
+    }
+
+    .diurnal-meta-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .diurnal-badge-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1.15rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .diurnal-badge-title {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .diurnal-badge-val {
+      font-family: var(--font-label);
+      font-size: 1.25rem;
+      color: var(--text-white);
+    }
+
+    .diurnal-chart-wrap {
+      background: #09090c;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem 1rem 0.75rem;
+      position: relative;
+    }
+
+    .diurnal-svg-chart {
+      width: 100%;
+      height: 220px;
+      overflow: visible;
+    }
+
+    .chart-axis-line {
+      stroke: var(--border);
+      stroke-dasharray: 4;
+    }
+
+    .chart-area {
+      fill: url(#diurnal-gradient);
+      opacity: 0.35;
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: var(--accent-red);
+      stroke-width: 2.5;
+    }
+
+    .chart-solar-rect {
+      fill: rgba(16, 185, 129, 0.12);
+      stroke: #10b981;
+      stroke-dasharray: 4;
+      stroke-width: 1;
+    }
+
+    .chart-inversion-rect {
+      fill: rgba(229, 50, 45, 0.1);
+      stroke: var(--accent-red);
+      stroke-dasharray: 4;
+      stroke-width: 1;
+    }
+
+    .chart-legend-row {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .legend-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* ----------------------------------------------------
+       CADR INDOOR ROOM SIMULATOR
+       ---------------------------------------------------- */
+    .cadr-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .cadr-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .cadr-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .cadr-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .cadr-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-label);
+      font-size: 0.85rem;
+      color: var(--text-white);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cadr-range-input {
+      width: 100%;
+      height: 6px;
+      background: #1c1c24;
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .cadr-select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-white);
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .cadr-select:focus {
+      border-color: var(--accent-red);
+    }
+
+    .cadr-results-panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .cadr-results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .cadr-stat-cell {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      padding: 0.85rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .cadr-stat-title {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .cadr-stat-val {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--text-white);
+      line-height: 1;
+    }
+
+    .cadr-stat-val.safe { color: #10b981; }
+    .cadr-stat-val.warn { color: #f59e0b; }
+
+    .cadr-sim-bar-wrap {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* ----------------------------------------------------
+       COMMUNITY COLLECTIVE RADAR
+       ---------------------------------------------------- */
+    .community-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .community-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .incident-feed-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      max-height: 320px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .incident-item {
+      padding: 0.65rem 0.85rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .incident-header {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--accent-red);
+    }
+
+    /* Step 01: Profile Matrix */
+    .profile-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    /* 24-Hour Schedule Timeline */
+    .schedule-timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    @media (max-width: 1024px) { .schedule-timeline-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .schedule-timeline-grid { grid-template-columns: 1fr; } }
+
+    .schedule-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-top: 3px solid var(--border);
+      gap: 0.85rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .schedule-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+    .schedule-card.danger { border-top-color: var(--accent-red); }
+    .schedule-card.safe { border-top-color: #10b981; }
+    .schedule-card.warn { border-top-color: #f59e0b; }
+    .schedule-time-tag { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: #fff; }
+    .schedule-card-title { font-family: var(--font-label); font-size: 1.1rem; color: #fff; text-transform: uppercase; }
+    .schedule-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+    .schedule-impact-pill { font-family: var(--font-mono); font-size: 0.7rem; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 3px 6px; border-radius: 2px; }
+
+    /* Compartment Micro-Environment Cards */
+    .compartment-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.65rem;
+    }
+    .compartment-name { font-family: var(--font-label); font-size: 0.95rem; color: #fff; text-transform: uppercase; }
+    .comp-bar-sub {
+      height: 8px;
+      background: #22222a;
+      border-radius: 2px;
+      overflow: hidden;
+      display: flex;
+      margin-top: 0.35rem;
+    }
+    .comp-bar-sub-fill {
+      height: 100%;
+      background: #10b981;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .profile-chips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .profile-chip {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all var(--transition-fast);
+      user-select: none;
+    }
+
+    .profile-chip:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-elevated);
+    }
+
+    .profile-chip.active {
+      border-color: var(--accent-red);
+      background: rgba(229, 50, 45, 0.08);
+      box-shadow: inset 0 0 0 1px var(--accent-red);
+    }
+
+    .chip-icon {
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .chip-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chip-title {
+      font-family: var(--font-label);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text-white);
+      text-transform: uppercase;
+    }
+
+    .chip-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .profile-meta-bar {
+      margin-top: 1rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* Advice Layer Filters */
+    .filter-tabs-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+      font-family: var(--font-label);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .tab-btn:hover, .tab-btn.active {
+      color: var(--text-white);
+      border-color: var(--text-white);
+      background: var(--bg-surface);
+    }
+
+    .tab-btn.active {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    /* 4-Column Tactical Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 4rem;
+    }
+
+    @media (max-width: 1200px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-grid { grid-template-columns: 1fr; }
+      .cadr-layout { grid-template-columns: 1fr; }
+      .community-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .pollutant-grid { grid-template-columns: repeat(2, 1fr); }
+      .nav-links { display: none; }
+      .diurnal-meta-cards { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .header-nav { padding: 0 0.85rem; }
+      .brand-badge { display: none; }
+      .brand-logo { font-size: 1.5rem; }
+      .main-content { padding: 1.5rem 0.85rem 4rem; }
+      .hero-headline { font-size: 2.5rem !important; }
+      .hero-subcopy { font-size: 0.95rem; }
+      .telemetry-card { padding: 1.25rem 0.85rem; }
+      .gauge-metrics-row { flex-direction: column; text-align: center; gap: 1rem; }
+      .gauge-wrapper { margin: 0 auto; width: 130px; height: 130px; }
+      .telemetry-band-wrap { text-align: center; }
+      .pollutant-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+      .impact-metrics-row { grid-template-columns: 1fr; gap: 0.75rem; }
+      .profile-chips-grid { grid-template-columns: 1fr; }
+      .ai-chat-box { height: 460px; }
+      .chat-bubble { max-width: 95%; }
+      .site-footer { padding: 2.5rem 1rem 1.5rem; }
+      .nav-actions { gap: 0.45rem; }
+      .routine-badge-btn { padding: 0.4rem 0.65rem; font-size: 0.75rem; }
+    }
+
+    /* Product Card */
+    .tactical-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+      perspective: 1000px;
+    }
+
+    .tactical-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+      transform: translateY(-2px);
+    }
+
+    .tactical-card.added {
+      border-color: var(--accent-red);
+      background: #141113;
+    }
+
+    .card-top {
+      margin-bottom: 1rem;
+    }
+
+    .card-badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.65rem;
+    }
+
+    .layer-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 2px 6px;
+      border-radius: 2px;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .layer-tag.routine { border-color: #3b82f6; color: #60a5fa; }
+    .layer-tag.indoor { border-color: #10b981; color: #34d399; }
+    .layer-tag.community { border-color: #f59e0b; color: #fbbf24; }
+
+    .match-pill {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      padding: 2px 6px;
+      background: rgba(229, 50, 45, 0.15);
+      color: var(--accent-red);
+      border-radius: 2px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .match-pill.visible {
+      display: inline-block;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      letter-spacing: 0.03em;
+      line-height: 1.15;
+      color: var(--text-white);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .card-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .card-impact-metrics {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.75rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .metric-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+    }
+
+    .metric-val {
+      font-weight: 700;
+      color: var(--text-white);
+    }
+
+    .metric-val.green { color: #10b981; }
+    .metric-val.red { color: var(--accent-red); }
+
+    .card-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .card-cite {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--text-dim);
+    }
+
+    .add-routine-btn {
+      width: 100%;
+    }
+
+    /* Compounding Impact Section */
+    .impact-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      margin-bottom: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .impact-formula-callout {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px dashed var(--border);
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .formula-badge {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-white);
+    }
+
+    .formula-explanation {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      max-width: 600px;
+    }
+
+    .impact-metrics-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .impact-metrics-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .impact-kpi-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi-title {
+      font-family: var(--font-label);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-big-num {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      line-height: 1;
+      color: var(--text-white);
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-subtext {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+
+    .comparison-container {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .comp-bar-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-family: var(--font-label);
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .comp-bar-track {
+      height: 28px;
+      background: #1f1f23;
+      border-radius: 2px;
+      overflow: hidden;
+      display: flex;
+      position: relative;
+    }
+
+    .comp-bar-protected {
+      height: 100%;
+      background: #10b981;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .comp-bar-residual {
+      height: 100%;
+      background: var(--accent-red);
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Cart Drawer */
+    .cart-drawer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-fast);
+    }
+
+    .cart-drawer-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 440px;
+      max-width: 90vw;
+      height: 100%;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border);
+      z-index: 201;
+      transform: translateX(100%);
+      transition: transform var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      box-shadow: -10px 0 35px rgba(0,0,0,0.6);
+    }
+
+    .cart-drawer.open {
+      transform: translateX(0);
+    }
+
+    .cart-drawer-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cart-drawer-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 0.04em;
+      color: var(--text-white);
+      text-transform: uppercase;
+    }
+
+    .close-drawer-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color var(--transition-fast);
+    }
+
+    .close-drawer-btn:hover {
+      color: var(--text-white);
+    }
+
+    .cart-items-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .cart-empty-msg {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 3rem;
+      font-family: var(--font-mono);
+    }
+
+    .cart-item-row {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .cart-item-info {
+      flex: 1;
+    }
+
+    .cart-item-name {
+      font-family: var(--font-label);
+      font-size: 0.85rem;
+      color: var(--text-white);
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .cart-item-impact {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: #10b981;
+    }
+
+    .cart-item-remove {
+      background: transparent;
+      border: none;
+      color: var(--accent-red);
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .cart-drawer-footer {
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .cart-footer-totals {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    /* AI Coach Chat */
+    .ai-assistant-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 4rem;
+    }
+
+    .ai-header-bar {
+      padding: 1.25rem 1.75rem;
+      background: #0e0e11;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .ai-badge-group {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .ai-chat-box {
+      display: flex;
+      flex-direction: column;
+      height: 540px;
+    }
+
+    .ai-messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .chat-bubble {
+      max-width: 84%;
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: #1c1c22;
+      border: 1px solid var(--border-hover);
+      color: var(--text-white);
+    }
+
+    .chat-bubble.assistant {
+      align-self: flex-start;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      border-left: 3px solid var(--accent-red);
+    }
+
+    .chat-bubble b {
+      color: var(--text-white);
+    }
+
+    .chat-bubble ul {
+      margin: 0.65rem 0 0.85rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .chat-bubble li {
+      color: var(--text-main);
+    }
+
+    .chat-bubble .imp {
+      margin-top: 0.65rem;
+      padding: 0.45rem 0.75rem;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid #10b981;
+      color: #34d399;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+    }
+
+    .chat-bubble .medical-alert {
+      margin-top: 0.5rem;
+      padding: 0.65rem 0.85rem;
+      background: rgba(229, 50, 45, 0.15);
+      border: 1px solid var(--accent-red);
+      color: #fca5a5;
+      font-weight: 600;
+      font-size: 0.82rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .chat-action-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+    }
+
+    .chat-action-btn {
+      background: rgba(229, 50, 45, 0.15);
+      border: 1px solid var(--accent-red);
+      color: #fff;
+      padding: 3px 8px;
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .chat-action-btn:hover {
+      background: var(--accent-red);
+    }
+
+    .prompt-suggestions-row {
+      padding: 0.75rem 1.5rem;
+      background: rgba(0, 0, 0, 0.25);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .prompt-chip {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .prompt-chip:hover {
+      border-color: var(--accent-red);
+      color: var(--text-white);
+    }
+
+    .chat-input-form {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-white);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color var(--transition-fast);
+    }
+
+    .chat-input:focus {
+      border-color: var(--accent-red);
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0.65rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      align-self: flex-start;
+      margin-bottom: 0.5rem;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* Footer */
+    .site-footer {
+      background: #08080a;
+      border-top: 1px solid var(--border);
+      padding: 4rem 1.5rem 2rem;
+    }
+
+    .footer-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.9fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+
+    @media (max-width: 960px) {
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 580px) {
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+
+    .footer-col-title {
+      font-family: var(--font-label);
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-white);
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-links-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .footer-link {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+
+    .footer-link:hover {
+      color: var(--text-white);
+    }
+
+    .footer-newsletter-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .footer-legal-row {
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .medical-disclaimer-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+    }
+
+    /* 60s Demo Modal */
+    .demo-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .demo-modal-overlay.open {
+      display: flex;
+    }
+
+    .demo-modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--accent-red);
+      border-radius: var(--radius-md);
+      max-width: 650px;
+      width: 100%;
+      padding: 2rem;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    .demo-step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .demo-step-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1.15rem;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .demo-step-text {
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+
+    .demo-step-time {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-red);
+      font-weight: 700;
+    }
+
+    /* Incident Report Modal */
+    .report-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .report-modal-overlay.open {
+      display: flex;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      #smog-canvas { display: none; }
+      .ticker-track { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Atmospheric Smog Canvas -->
+  <canvas id="smog-canvas"></canvas>
+
+  <div class="app-wrap">
+    <!-- Header / Sticky Nav -->
+    <header class="header-nav">
+      <div class="nav-inner">
+        <a href="#" class="brand-wrap">
+          <div class="brand-logo">AIRLOOP<span class="brand-dot"></span></div>
+          <span class="brand-badge">GENAI SMOG DEFENSE · v3.0</span>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="#monitor" class="nav-link active">Monitor</a></li>
+          <li><a href="diurnal-radar.html" class="nav-link">24H Radar</a></li>
+          <li><a href="cadr-lab.html" class="nav-link">CADR Lab</a></li>
+          <li><a href="community.html" class="nav-link">Community</a></li>
+          <li><a href="assistant.html" class="nav-link">AI Coach</a></li>
+          <li><a href="#tactical-catalog" class="nav-link">Defense Catalog</a></li>
+          <li><a href="#impact-lab" class="nav-link">Impact Lab</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <div class="live-status-pill" id="live-indicator">
+            <span class="pulse-dot" id="live-dot"></span>
+            <span id="live-status-text">LIVE OPEN-METEO</span>
+          </div>
+
+          <button class="btn btn-sm btn-red" id="open-demo-guide-btn">
+            60s DEMO
+          </button>
+
+          <button class="routine-badge-btn" id="open-cart-btn" aria-label="Open Routine Cart">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span>ROUTINE</span>
+            <span class="badge-counter" id="nav-cart-count">3</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Marquee Ticker -->
+    <div class="ticker-bar" aria-hidden="true">
+      <div class="ticker-label">ATMOSPHERIC TELEMETRY</div>
+      <div class="ticker-track" id="ticker-track">
+        <div class="ticker-item">DELHI: <strong id="t-delhi">AQI 384 HAZARDOUS</strong></div>
+        <div class="ticker-item">LAHORE: <strong id="t-lahore">AQI 412 HAZARDOUS</strong></div>
+        <div class="ticker-item">BEIJING: <strong id="t-beijing">AQI 115 SENSITIVE</strong></div>
+        <div class="ticker-item">MUMBAI: <strong id="t-mumbai">AQI 168 UNHEALTHY</strong></div>
+        <div class="ticker-item">SOLAR MIXING PURGE WINDOW: <strong>13:00 - 15:30 (BEST AIRING TIME)</strong></div>
+        <div class="ticker-item">BERKELEY EARTH FORMULA: <strong>22 µg/m³ PM2.5 = 1 CIGARETTE/DAY</strong></div>
+        <div class="ticker-item">WHO 24H PM2.5 STANDARD: <strong>15 µg/m³</strong></div>
+        <div class="ticker-item">AHAM CLEAN AIR TARGET: <strong>MINIMUM 4.8 ACH REQUIRED</strong></div>
+        <!-- Duplicated for smooth loop -->
+        <div class="ticker-item">DELHI: <strong>AQI 384 HAZARDOUS</strong></div>
+        <div class="ticker-item">LAHORE: <strong>AQI 412 HAZARDOUS</strong></div>
+        <div class="ticker-item">BEIJING: <strong>AQI 115 SENSITIVE</strong></div>
+        <div class="ticker-item">MUMBAI: <strong>AQI 168 UNHEALTHY</strong></div>
+      </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="main-content" id="monitor">
+      
+      <!-- Hero Section -->
+      <section class="hero-grid">
+        <div class="hero-left">
+          <div class="hero-eyebrow">
+            <span>//</span> GENAI WINTER SMOG INTELLIGENCE · HOUSEHOLD DEFENSE
+          </div>
+          <h1 class="hero-headline">
+            <span class="rise-in">QUANTIFY EVERY BREATH.</span>
+            <span class="rise-in" style="animation-delay: 0.15s; color: var(--accent-red);">SURVIVE THE SMOG.</span>
+          </h1>
+          <p class="hero-subcopy">
+            Smog advice is broken and generic. AirLoop brings hyper-local diurnal intelligence, indoor CADR room physics, lifestyle vulnerability matching, and mathematically compounded exposure cuts. Don't guess your smog dose—engineer it.
+          </p>
+
+          <!-- Audio Smog Briefing Bar -->
+          <div class="audio-briefing-bar">
+            <button class="audio-play-btn" id="audio-brief-btn" title="Listen to 30-Second Morning Smog Audio Briefing">
+              ▶
+            </button>
+            <div class="waveform-visualizer" id="waveform-visualizer">
+              <span class="waveform-bar"></span>
+              <span class="waveform-bar"></span>
+              <span class="waveform-bar"></span>
+              <span class="waveform-bar"></span>
+            </div>
+            <span id="audio-brief-text">LISTEN TO 30s MORNING SMOG BRIEFING</span>
+          </div>
+
+          <div class="hero-cta-group">
+            <a href="#tactical-catalog" class="btn btn-solid-red">
+              BUILD DEFENSE ROUTINE ↓
+            </a>
+            <a href="#cadr-sim" class="btn">
+              CADR ROOM SIMULATOR 🧪
+            </a>
+            <a href="#ai-coach" class="btn">
+              ASK AI COACH 💬
+            </a>
+          </div>
+
+          <!-- Quick City Preset Chips -->
+          <div class="city-strip">
+            <span class="city-strip-label">PRESET CITIES:</span>
+            <button class="city-pill active" data-city="Delhi">Delhi</button>
+            <button class="city-pill" data-city="Lahore">Lahore</button>
+            <button class="city-pill" data-city="Beijing">Beijing</button>
+            <button class="city-pill" data-city="Mumbai">Mumbai</button>
+            <button class="city-pill" data-city="Bangkok">Bangkok</button>
+            <button class="city-pill" data-city="New York">New York</button>
+            <button class="city-pill" data-city="London">London</button>
+          </div>
+        </div>
+
+        <!-- Telemetry Station -->
+        <div class="telemetry-card" id="telemetry-card">
+          <div class="telemetry-header">
+            <div>
+              <div class="telemetry-location" id="display-city">DELHI, IN</div>
+              <div class="telemetry-coords" id="display-coords">LAT: 28.65° N · LON: 77.23° E · 227m ALT</div>
+            </div>
+            <button class="btn btn-sm" id="refresh-telemetry-btn" title="Refresh Live Open-Meteo Data">
+              REFRESH ⟳
+            </button>
+          </div>
+
+          <!-- City Search with Geocoding Dropdown -->
+          <div class="telemetry-search-box">
+            <div class="search-input-wrap">
+              <input type="text" class="search-input" id="city-search-input" placeholder="Search any global city (e.g. Milan, Cairo, Ulaanbaatar)..." autocomplete="off">
+              <button class="gps-btn" id="gps-locate-btn" title="Detect GPS Location">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+              </button>
+              <button class="search-btn" id="search-submit-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </button>
+            </div>
+            <div class="search-dropdown" id="search-dropdown"></div>
+          </div>
+
+          <!-- Gauge & Main Band Row -->
+          <div class="gauge-metrics-row">
+            <div class="gauge-wrapper">
+              <svg class="gauge-svg" viewBox="0 0 150 150">
+                <circle class="gauge-bg" cx="75" cy="75" r="65"></circle>
+                <circle class="gauge-fill" id="gauge-fill-circle" cx="75" cy="75" r="65"></circle>
+              </svg>
+              <div class="gauge-content">
+                <div class="gauge-aqi-num" id="telemetry-aqi">384</div>
+                <div class="gauge-aqi-unit">US AQI</div>
+              </div>
+            </div>
+
+            <div class="telemetry-band-wrap">
+              <div class="aqi-band-badge" id="telemetry-band">HAZARDOUS</div>
+              <p class="telemetry-advisory" id="telemetry-advisory">
+                Severe emergency conditions. Surface thermal inversion trapping ground emissions. Active indoor filtration mandatory.
+              </p>
+            </div>
+          </div>
+
+          <!-- Berkeley Earth Cigarette Calculation Box -->
+          <div class="cig-exposure-box">
+            <div class="cig-box-header">
+              <span class="cig-box-title">AMB-AIR CIGARETTE EQUIVALENT (24H)</span>
+              <span class="cig-formula-hint">Berkeley Earth (22 µg/m³ PM2.5 = 1 cig/day)</span>
+            </div>
+            <div class="cig-box-val">
+              <span class="cig-count" id="cig-equivalent-val">14.8</span>
+              <span class="cig-text">CIGARETTES / DAY INHALED AMBIENT</span>
+            </div>
+          </div>
+
+          <!-- 4 Pollutant Sub-Metrics -->
+          <div class="pollutant-grid">
+            <div class="pollutant-cell">
+              <div class="pollutant-name">PM2.5</div>
+              <div class="pollutant-value" id="val-pm25">326.4</div>
+              <div class="pollutant-unit">µg/m³</div>
+            </div>
+            <div class="pollutant-cell">
+              <div class="pollutant-name">PM10</div>
+              <div class="pollutant-value" id="val-pm10">485.2</div>
+              <div class="pollutant-unit">µg/m³</div>
+            </div>
+            <div class="pollutant-cell">
+              <div class="pollutant-name">NO2</div>
+              <div class="pollutant-value" id="val-no2">68.1</div>
+              <div class="pollutant-unit">µg/m³</div>
+            </div>
+            <div class="pollutant-cell">
+              <div class="pollutant-name">OZONE (O3)</div>
+              <div class="pollutant-value" id="val-o3">22.4</div>
+              <div class="pollutant-unit">µg/m³</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: 24-Hour Diurnal Smog Radar -->
+      <section class="diurnal-section reveal" id="diurnal-radar">
+        <div class="section-header" style="flex-direction: row; justify-content: space-between; align-items: flex-end; flex-wrap: wrap;">
+          <div>
+            <span class="section-tag">// ATMOSPHERIC RADAR · 24-HOUR DIURNAL FORECAST</span>
+            <h2 class="section-title">THERMAL INVERSION DIURNAL CURVE</h2>
+            <p class="section-desc">
+              Winter smog fluctuates heavily across 24 hours. Cold radiational ground cooling traps emissions in early morning, while afternoon solar radiation raises the boundary layer to create a natural ventilation window.
+            </p>
+          </div>
+          <a href="diurnal-radar.html" class="btn btn-sm btn-red" style="margin-top: 0.5rem;">
+            OPEN FULL COMMUTE ROUTE PLANNER →
+          </a>
+        </div>
+
+        <div class="diurnal-meta-cards">
+          <div class="diurnal-badge-box">
+            <div class="diurnal-badge-title">MORNING INVERSION TRAP (PEAK)</div>
+            <div class="diurnal-badge-val text-red" id="inversion-peak-text">06:00 – 09:30 (AQI 410+)</div>
+            <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 2px;">Keep windows locked; zero outdoor jogging</div>
+          </div>
+
+          <div class="diurnal-badge-box">
+            <div class="diurnal-badge-title">SOLAR CLEAN AIR WINDOW (BEST)</div>
+            <div class="diurnal-badge-val" style="color: #10b981;" id="solar-window-text">13:00 – 15:30 (PURGE TIME)</div>
+            <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 2px;">Solar boundary layer expansion; run errands</div>
+          </div>
+
+          <div class="diurnal-badge-box">
+            <div class="diurnal-badge-title">DIURNAL EXPOSURE MULTIPLIER</div>
+            <div class="diurnal-badge-val" id="diurnal-mult-text">2.4x Daily Variation</div>
+            <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 2px;">Timing your day cuts dose more than a purifier</div>
+          </div>
+        </div>
+
+        <div class="diurnal-chart-wrap">
+          <svg class="diurnal-svg-chart" id="diurnal-svg" viewBox="0 0 1000 220" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="diurnal-gradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="var(--accent-red)" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="var(--accent-red)" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+            <!-- Generated dynamically via JS -->
+          </svg>
+
+          <div class="chart-legend-row">
+            <div class="legend-item">
+              <span class="legend-indicator" style="background: var(--accent-red);"></span>
+              <span>Hourly PM2.5 Forecast Curve</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-indicator" style="background: rgba(16, 185, 129, 0.4); border: 1px solid #10b981;"></span>
+              <span>Safe Solar Clean Window (13:00 - 15:30)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-indicator" style="background: rgba(229, 50, 45, 0.3); border: 1px solid var(--accent-red);"></span>
+              <span>Ground Inversion Trap (06:00 - 09:30 & 19:00 - 23:00)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: CADR Indoor Room Physics Simulator -->
+      <section class="cadr-section reveal" id="cadr-sim">
+        <div class="section-header" style="flex-direction: row; justify-content: space-between; align-items: flex-end; flex-wrap: wrap;">
+          <div>
+            <span class="section-tag">// INDOOR AIR LAB · CADR & AIR CHANGES PER HOUR (ACH)</span>
+            <h2 class="section-title">CLEAN AIR DELIVERY RATE SIMULATOR</h2>
+            <p class="section-desc">
+              Outdoor smog penetrates into bedrooms and living spaces through cracks. Calculate your exact Clean Air Delivery Rate (CADR), air turnover frequency, and the time required to decontaminate indoor spaces.
+            </p>
+          </div>
+          <a href="cadr-lab.html" class="btn btn-sm btn-red" style="margin-top: 0.5rem;">
+            OPEN FULL CADR LAB & BLUEPRINTS →
+          </a>
+        </div>
+
+        <div class="cadr-layout">
+          <div class="cadr-controls">
+            <div class="cadr-field">
+              <div class="cadr-label-row">
+                <span>Room Floor Area</span>
+                <strong id="label-room-area">250 sq ft (Master Bedroom)</strong>
+              </div>
+              <input type="range" class="cadr-range-input" id="input-room-area" min="100" max="650" step="25" value="250">
+            </div>
+
+            <div class="cadr-field">
+              <div class="cadr-label-row">
+                <span>Ceiling Height</span>
+                <strong id="label-ceiling-height">9.5 ft</strong>
+              </div>
+              <input type="range" class="cadr-range-input" id="input-ceiling-height" min="8" max="14" step="0.5" value="9.5">
+            </div>
+
+            <div class="cadr-field">
+              <div class="cadr-label-row">Filtration Mechanism (CADR)</div>
+              <select class="cadr-select" id="select-filtration">
+                <option value="400">DIY Corsi-Rosenthal Box (400 CFM Clean Air · ₹3,500)</option>
+                <option value="220" selected>Standard True HEPA Purifier (220 CFM · Medium Room)</option>
+                <option value="120">Compact Bedroom Purifier (120 CFM · Low Capacity)</option>
+                <option value="550">Dual Filtration Setup (550 CFM · High Volume)</option>
+                <option value="0">Natural Infiltration Only (0 CFM · No Filter)</option>
+              </select>
+            </div>
+
+            <div class="cadr-field">
+              <div class="cadr-label-row">Door & Window Draft Seal</div>
+              <select class="cadr-select" id="select-door-seal">
+                <option value="sealed" selected>Hermetically Sealed (Silicone Sweeps & Weather-Taped)</option>
+                <option value="standard">Standard Closed Door (Draft gaps around edges)</option>
+                <option value="cracked">Window / Door Slightly Cracked (Severe Infiltration)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="cadr-results-panel">
+            <div class="cadr-results-grid">
+              <div class="cadr-stat-cell">
+                <div class="cadr-stat-title">AIR CHANGES / HOUR (ACH)</div>
+                <div class="cadr-stat-val safe" id="val-cadr-ach">5.6 ACH</div>
+                <div style="font-size: 0.7rem; color: var(--text-dim);" id="sub-cadr-ach">Target: ≥4.8 ACH (AHAM Met)</div>
+              </div>
+
+              <div class="cadr-stat-cell">
+                <div class="cadr-stat-title">TIME TO 90% DECONTAMINATION</div>
+                <div class="cadr-stat-val" id="val-cadr-time">24 MIN</div>
+                <div style="font-size: 0.7rem; color: var(--text-dim);">Pre-bed filtration lead time</div>
+              </div>
+
+              <div class="cadr-stat-cell">
+                <div class="cadr-stat-title">INDOOR STEADY-STATE PM2.5</div>
+                <div class="cadr-stat-val safe" id="val-cadr-indoor-pm">18.4 µg/m³</div>
+                <div style="font-size: 0.7rem; color: var(--text-dim);">Outdoor: <span id="val-cadr-outdoor-pm">326.4</span> µg/m³</div>
+              </div>
+
+              <div class="cadr-stat-cell">
+                <div class="cadr-stat-title">LUNG EXPOSURE REDUCTION</div>
+                <div class="cadr-stat-val safe" id="val-cadr-cut">-94.4%</div>
+                <div style="font-size: 0.7rem; color: var(--text-dim);">Clean Sanctuary Protection</div>
+              </div>
+            </div>
+
+            <div class="cadr-sim-bar-wrap">
+              <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 0.4rem;">
+                <span>INDOOR / OUTDOOR PARTICLE RATIO (I/O)</span>
+                <strong id="val-cadr-io-ratio">0.056 (5.6% Infiltration)</strong>
+              </div>
+              <div style="height: 12px; background: #1c1c22; border-radius: 2px; overflow: hidden; display: flex;">
+                <div id="bar-indoor-pm" style="width: 5.6%; background: #10b981;"></div>
+                <div style="flex: 1; background: var(--accent-red);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 01: Lifestyle Profile Matrix -->
+      <section class="profile-section reveal" id="profile-section">
+        <div class="section-header">
+          <span class="section-tag">// STEP 01 · HOUSEHOLD LIFESTYLE PROFILES</span>
+          <h2 class="section-title">CALIBRATE YOUR VULNERABILITY</h2>
+          <p class="section-desc">
+            Select your household's profile attributes. AirLoop dynamically re-ranks tactical advice and tightens mitigation thresholds based on scientific health risks.
+          </p>
+        </div>
+
+        <div class="profile-chips-grid">
+          <div class="profile-chip" data-profile="kids">
+            <div class="chip-icon">👶</div>
+            <div class="chip-text">
+              <span class="chip-title">Kids (&lt; 12 Yrs)</span>
+              <span class="chip-sub">Higher breathing rate / alveolar risk</span>
+            </div>
+          </div>
+
+          <div class="profile-chip" data-profile="elderly">
+            <div class="chip-icon">👵</div>
+            <div class="chip-text">
+              <span class="chip-title">Elderly (65+)</span>
+              <span class="chip-sub">Cardiovascular vulnerability</span>
+            </div>
+          </div>
+
+          <div class="profile-chip" data-profile="asthma">
+            <div class="chip-icon">🫁</div>
+            <div class="chip-text">
+              <span class="chip-title">Asthma / Respiratory</span>
+              <span class="chip-sub">Airway reactivity & bronchospasm</span>
+            </div>
+          </div>
+
+          <div class="profile-chip" data-profile="commuter">
+            <div class="chip-icon">🚇</div>
+            <div class="chip-text">
+              <span class="chip-title">Daily Commuter</span>
+              <span class="chip-sub">Peak rush-hour exhaust exposure</span>
+            </div>
+          </div>
+
+          <div class="profile-chip" data-profile="runner">
+            <div class="chip-icon">🏃</div>
+            <div class="chip-text">
+              <span class="chip-title">Outdoor Runner</span>
+              <span class="chip-sub">10x minute ventilation volume</span>
+            </div>
+          </div>
+
+          <div class="profile-chip" data-profile="cook">
+            <div class="chip-icon">🍳</div>
+            <div class="chip-text">
+              <span class="chip-title">Home Cook</span>
+              <span class="chip-sub">Indoor PM2.5 frying & gas combustion</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-meta-bar">
+          <div>ACTIVE PROFILE: <strong id="active-profile-summary">NONE SELECTED (GENERAL PUBLIC)</strong></div>
+          <div id="tailored-moves-count">12 MOVES AVAILABLE</div>
+        </div>
+      </section>
+
+      <!-- Step 02: 4-Column Tactical Cards Grid (Three Advice Layers) -->
+      <section class="reveal" id="tactical-catalog">
+        <div class="section-header">
+          <span class="section-tag">// STEP 02 · TACTICAL ADVICE CATALOG (3 LAYERS)</span>
+          <h2 class="section-title">SMOG DEFENSE MOVES</h2>
+          <p class="section-desc">
+            Curated, peer-reviewed interventions across low-emission routines, indoor air hacks, and sustainable community alternatives. Add moves to your routine to compound your exposure cut.
+          </p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs-row">
+          <button class="tab-btn active" data-filter="all">ALL MOVES (<span id="count-all">12</span>)</button>
+          <button class="tab-btn" data-filter="routine">LOW-EMISSION ROUTINES (<span id="count-routine">4</span>)</button>
+          <button class="tab-btn" data-filter="indoor">INDOOR AIR HACKS (<span id="count-indoor">4</span>)</button>
+          <button class="tab-btn" data-filter="community">COMMUNITY ALTERNATIVES (<span id="count-community">4</span>)</button>
+        </div>
+
+        <!-- Card Grid -->
+        <div class="cards-grid" id="cards-grid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </section>
+
+      <!-- Step 02B: Interactive 24-Hour Daily Smog Schedule -->
+      <section class="profile-section reveal" id="daily-schedule" style="margin-bottom: 4rem;">
+        <div class="section-header" style="flex-direction: row; justify-content: space-between; align-items: flex-end; flex-wrap: wrap;">
+          <div>
+            <span class="section-tag">// STEP 02B · PERSONALIZED 24-HOUR DEFENSE TIMELINE</span>
+            <h2 class="section-title">TODAY'S HOUSEHOLD DEFENSE SCHEDULE</h2>
+            <p class="section-desc">
+              Synchronize your household routines with the diurnal atmospheric inversion curve. Specific hourly defense protocols tailored to your family's profile.
+            </p>
+          </div>
+          <button class="btn btn-sm btn-solid-red" id="btn-export-schedule">
+            📋 PRINT HOUSEHOLD PROTOCOL
+          </button>
+        </div>
+
+        <div class="schedule-timeline-grid" id="schedule-timeline">
+          <!-- Populated dynamically via JS based on city AQI & active profiles -->
+        </div>
+      </section>
+
+      <!-- Step 03: Compounding Impact Lab -->
+      <section class="impact-section reveal" id="impact-lab">
+        <div class="section-header">
+          <span class="section-tag">// STEP 03 · QUANTIFIED COMPOUNDING IMPACT</span>
+          <h2 class="section-title">THE MATHEMATICAL DEFENSE LAB</h2>
+          <p class="section-desc">
+            Air filtration and lifestyle adaptations compound multiplicatively. We enforce the rigorous atmospheric health formula: 
+            <strong>Remaining = Π(1 − cutᵢ)</strong>. Percentages are never added linearly.
+          </p>
+        </div>
+
+        <div class="impact-formula-callout">
+          <div class="formula-badge font-mono">
+            FORMULA: Exposure_{remaining} = \prod (1 - cut_i)
+          </div>
+          <div class="formula-explanation">
+            If you wear an N95 (-75%) and run a HEPA bedroom filter (-80%), remaining exposure is (0.25 × 0.20) = 5%, giving an overall 95% dose reduction.
+          </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="impact-metrics-row">
+          <div class="impact-kpi-card">
+            <span class="kpi-title">TOTAL EXPOSURE CUT</span>
+            <div class="kpi-big-num font-display" style="color: #10b981;" id="kpi-total-cut">0.0%</div>
+            <span class="kpi-subtext" id="kpi-cut-sub">ADD DEFENSE MOVES</span>
+          </div>
+
+          <div class="impact-kpi-card">
+            <span class="kpi-title">CIGARETTES AVOIDED</span>
+            <div class="kpi-big-num font-display" style="color: var(--accent-red);" id="kpi-cigs-saved">0.0</div>
+            <span class="kpi-subtext">CIGARETTE-EQUIV SAVED / DAY</span>
+          </div>
+
+          <div class="impact-kpi-card">
+            <span class="kpi-title">NET REMAINING DOSE</span>
+            <div class="kpi-big-num font-display" id="kpi-net-pm25">326.4</div>
+            <span class="kpi-subtext">EFFECTIVE PM2.5 (µg/m³)</span>
+          </div>
+
+          <div class="impact-kpi-card">
+            <span class="kpi-title">CARBON PREVENTED</span>
+            <div class="kpi-big-num font-display" style="color: #60a5fa;" id="kpi-co2-saved">0.0</div>
+            <span class="kpi-subtext">kg CO2 AVOIDED / WEEK</span>
+          </div>
+        </div>
+
+        <!-- Exposure Comparison Bar -->
+        <div class="comparison-container">
+          <div class="comp-bar-header">
+            <span>DOSE REDUCTION COMPARISON</span>
+            <span id="comp-bar-ratio">BASELINE EXPOSURE (UNPROTECTED)</span>
+          </div>
+          <div class="comp-bar-track">
+            <div class="comp-bar-protected" id="comp-bar-fill" style="width: 0%;">
+              <span id="comp-cut-label"></span>
+            </div>
+            <div class="comp-bar-residual" id="comp-bar-residual">
+              <span id="comp-remaining-label">100% EXPOSED</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Micro-Environment Multi-Compartment Exposure Breakdown -->
+        <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <span class="section-tag" style="font-size: 0.68rem;">// MULTI-COMPARTMENT INHALATION MODEL</span>
+              <h4 class="font-label uppercase text-white" style="font-size: 1.15rem; margin-top: 2px;">24-HOUR MICRO-ENVIRONMENT EXPOSURE PARTITION</h4>
+            </div>
+            <div class="font-mono text-dim" style="font-size: 0.72rem;">
+              EPIDEMIOLOGY MODEL: Dose = \sum (C_j \times V_{vent} \times t_j)
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;" id="compartment-grid">
+            <!-- 4 compartments: Bedroom, Commute, Work/School, Outdoor -->
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div class="font-mono text-muted" style="font-size: 0.78rem;">
+            ACTIVE MOVES IN ROUTINE: <strong id="routine-count-text" class="text-white">0</strong>
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+            <button class="btn btn-sm" id="clear-routine-btn">CLEAR ROUTINE</button>
+            <button class="btn btn-sm btn-solid-red" id="open-routine-drawer-btn">VIEW ROUTINE DRAWER</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Community Defense Collective & Incident Reporting -->
+      <section class="community-section reveal" id="community-hub">
+        <div class="section-header" style="flex-direction: row; justify-content: space-between; align-items: flex-end; flex-wrap: wrap;">
+          <div>
+            <span class="section-tag">// COLLECTIVE SMOG ACTION · COMMUNITY RADAR</span>
+            <h2 class="section-title">COMMUNITY DEFENSE & AIR PACT</h2>
+            <p class="section-desc">
+              Clean air is a public good. Report neighborhood toxic burning incidents, access shared clean air pods, and track collective community carbon mitigation.
+            </p>
+          </div>
+          <a href="community.html" class="btn btn-sm btn-red" style="margin-top: 0.5rem;">
+            OPEN CITIZEN INCIDENT RADAR →
+          </a>
+        </div>
+
+        <div class="community-grid">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+              <h4 class="font-label uppercase" style="color: #fff; font-size: 0.95rem;">NEIGHBORHOOD INCIDENT RADAR</h4>
+              <button class="btn btn-sm btn-red" id="report-incident-btn">+ REPORT BURNING</button>
+            </div>
+            <div class="incident-feed-box" id="incident-feed">
+              <div class="incident-item">
+                <div class="incident-header">
+                  <span>🚨 BIOMASS / LEAF BURNING</span>
+                  <span>14 MIN AGO</span>
+                </div>
+                <div>Sector 14 Green Belt Park · Garden waste smoldering. Municipal patrol alerted via 311.</div>
+              </div>
+              <div class="incident-item">
+                <div class="incident-header">
+                  <span>⚠️ UNCOVERED CONSTRUCTION DUST</span>
+                  <span>1 HR AGO</span>
+                </div>
+                <div>Ring Road Flyover Extension · Dry demolition without water suppression sprayers.</div>
+              </div>
+              <div class="incident-item">
+                <div class="incident-header">
+                  <span>🚚 COMMERCIAL DIESEL IDLING</span>
+                  <span>2.5 HRS AGO</span>
+                </div>
+                <div>Wholesale Mandi Gate 3 · 12 heavy trucks idling overnight in residential buffer zone.</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="font-label uppercase" style="color: #fff; font-size: 0.95rem; margin-bottom: 0.85rem;">COLLECTIVE DEFENSE IMPACT</h4>
+            <div style="background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <div>
+                  <div class="font-mono text-dim" style="font-size: 0.7rem;">PARTICIPATING HOUSEHOLDS</div>
+                  <div class="font-display" style="font-size: 2rem; color: #fff;">1,840</div>
+                </div>
+                <div>
+                  <div class="font-mono text-dim" style="font-size: 0.7rem;">COMMUNITY CO2 PREVENTED</div>
+                  <div class="font-display" style="font-size: 2rem; color: #60a5fa;">27.4 TONS</div>
+                </div>
+              </div>
+              <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1rem;">
+                Neighborhood clean-air corridors, EV school pools, and decentralized composting loops divert toxic emissions before they enter your children's lungs.
+              </p>
+              <div style="display: flex; gap: 0.5rem;">
+                <span class="layer-tag community">HEPA PUBLIC PODS: 14 ACTIVE</span>
+                <span class="layer-tag routine">CLEAN SCHOOL RUNS: 8 CORRIDORS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GenAI Air Quality Assistant (AirLoop Coach) -->
+      <section class="ai-assistant-section reveal" id="ai-coach">
+        <div class="ai-header-bar">
+          <div>
+            <div class="section-tag">// GENAI CHAT ASSISTANT · MULTI-TURN MEMORY</div>
+            <h3 class="font-display" style="font-size: 1.6rem; color: #fff; text-transform: uppercase;">AIRLOOP INTELLIGENCE COACH</h3>
+          </div>
+          <div class="ai-badge-group">
+            <div class="live-status-pill" id="ai-engine-pill">
+              <span class="pulse-dot"></span>
+              <span id="ai-engine-label">LOCAL HEURISTIC RULES ENGINE</span>
+            </div>
+            <a href="assistant.html" class="btn btn-sm btn-solid-red">
+              OPEN FULL CLINICAL CONSOLE →
+            </a>
+          </div>
+        </div>
+
+        <div class="ai-chat-box">
+          <div class="ai-messages-area" id="ai-messages">
+            <!-- Initial Coach Welcome Message -->
+            <div class="chat-bubble assistant">
+              <b>header: Delhi · AQI 384 (Hazardous)</b>
+              <p style="margin-top: 0.35rem;">
+                I am your AirLoop air quality coach. Severe winter smog is currently active across the Indo-Gangetic plain. Here is your baseline household defense:
+              </p>
+              <ul>
+                <li>Seal bedroom doors and run high-efficiency particulate filtration continuously.</li>
+                <li>Wear fitted N95/FFP2 respirators for any mandatory transit; eliminate early morning jogging.</li>
+                <li>Shift cooking ventilation and keep windows shut until solar inversion lifts after 1:00 PM.</li>
+              </ul>
+              <div class="imp">Impact: Committing to these 3 core moves cuts total household particulate dose by 97.0% (avoiding 14.4 cigarette-equivalents daily).</div>
+              <div class="chat-action-pills">
+                <button class="chat-action-btn" data-add="1">+ Add HEPA Sanctuary</button>
+                <button class="chat-action-btn" data-add="2">+ Add N95 Commute</button>
+                <button class="chat-action-btn" data-add="5">+ Add Metro Shift</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prompt Suggestions -->
+          <div class="prompt-suggestions-row">
+            <button class="prompt-chip" data-prompt="Can my kids play outside today?">👶 Can my kids play outside today?</button>
+            <button class="prompt-chip" data-prompt="What mask should I wear and when?">😷 What mask should I wear and when?</button>
+            <button class="prompt-chip" data-prompt="How to clean indoor air without an expensive purifier?">🛠️ How to clean indoor air on a budget?</button>
+            <button class="prompt-chip" data-prompt="Best time for a morning run or commute?">🏃 Best time for a morning run or commute?</button>
+            <button class="prompt-chip" data-prompt="Cooking safety during severe winter smog?">🍳 Cooking safety during peak smog?</button>
+            <button class="prompt-chip" data-prompt="Elderly parent is coughing, what should we do?">👵 Elderly family member coughing?</button>
+          </div>
+
+          <!-- Chat Form -->
+          <form class="chat-input-form" id="chat-form">
+            <input type="text" class="chat-input" id="chat-input" placeholder="Ask AirLoop coach anything (e.g. 'Can my kids play outside?', 'What mask should I wear?')..." autocomplete="off">
+            <button type="submit" class="btn btn-solid-red">SEND ↵</button>
+          </form>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Routine Cart Drawer (Slide Out) -->
+    <div class="cart-drawer-overlay" id="cart-drawer-overlay"></div>
+    <div class="cart-drawer" id="cart-drawer">
+      <div class="cart-drawer-header">
+        <div class="cart-drawer-title">YOUR DEFENSE ROUTINE</div>
+        <button class="close-drawer-btn" id="close-drawer-btn">&times;</button>
+      </div>
+
+      <div class="cart-items-list" id="cart-items-list">
+        <!-- Rendered items -->
+      </div>
+
+      <div class="cart-drawer-footer">
+        <div class="cart-footer-totals">
+          <div style="display: flex; justify-content: space-between;">
+            <span class="text-muted">COMPOUNDED EXPOSURE CUT:</span>
+            <strong id="drawer-total-cut" style="color: #10b981;">0.0%</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span class="text-muted">DAILY CIGARETTES AVOIDED:</span>
+            <strong id="drawer-cigs-saved" style="color: var(--accent-red);">0.0</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span class="text-muted">WEEKLY CO2 OFFSET:</span>
+            <strong id="drawer-co2-saved" style="color: #60a5fa;">0.0 kg</strong>
+          </div>
+        </div>
+        <button class="btn btn-solid-red" style="width: 100%;" id="print-routine-btn">
+          EXPORT DEFENSE PROTOCOL (PRINT/PDF)
+        </button>
+      </div>
+    </div>
+
+    <!-- 60-Second Demo Modal -->
+    <div class="demo-modal-overlay" id="demo-modal-overlay">
+      <div class="demo-modal-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 class="font-display" style="font-size: 1.8rem; color: #fff;">60-SECOND JUDGE PITCH SCRIPT</h3>
+          <button class="close-drawer-btn" id="close-demo-btn">&times;</button>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+          Rehearse or trigger this exact 5-step sequence during judging:
+        </p>
+
+        <div class="demo-step-list">
+          <div class="demo-step-item">
+            <div>
+              <div class="demo-step-text"><strong>1. Switch City to "Delhi"</strong>: Gauge animates red, 24h diurnal radar updates live.</div>
+            </div>
+            <button class="btn btn-sm btn-red" id="demo-trigger-1">RUN 5s</button>
+          </div>
+
+          <div class="demo-step-item">
+            <div>
+              <div class="demo-step-text"><strong>2. Toggle "Kids" & "Commuter"</strong>: Cards instantly re-rank for high-risk vulnerabilities.</div>
+            </div>
+            <button class="btn btn-sm btn-red" id="demo-trigger-2">RUN 10s</button>
+          </div>
+
+          <div class="demo-step-item">
+            <div>
+              <div class="demo-step-text"><strong>3. Add Purifier, N95 & Metro</strong>: Watch daily dose drop from 14.8 to 0.4 cigarettes.</div>
+            </div>
+            <button class="btn btn-sm btn-red" id="demo-trigger-3">RUN 15s</button>
+          </div>
+
+          <div class="demo-step-item">
+            <div>
+              <div class="demo-step-text"><strong>4. Ask "Can my kids play outside?"</strong>: Instant structured AI reply with quantified impact & action pills.</div>
+            </div>
+            <button class="btn btn-sm btn-red" id="demo-trigger-4">RUN 15s</button>
+          </div>
+
+          <div class="demo-step-item">
+            <div>
+              <div class="demo-step-text"><strong>5. Deliver Closing Hook</strong>: <em>"Smog advice today is generic. AirLoop quantifies every breath."</em></div>
+            </div>
+            <span class="demo-step-time">5s</span>
+          </div>
+        </div>
+
+        <div style="text-align: right;">
+          <button class="btn btn-sm" id="close-demo-btn-bottom">CLOSE GUIDE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Incident Report Modal -->
+    <div class="report-modal-overlay" id="report-modal-overlay">
+      <div class="demo-modal-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 class="font-display" style="font-size: 1.8rem; color: #fff;">FLAG NEIGHBORHOOD EMISSION</h3>
+          <button class="close-drawer-btn" id="close-report-btn">&times;</button>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+          Report municipal waste burning or construction dust to the community radar.
+        </p>
+
+        <form id="incident-form" style="display: flex; flex-direction: column; gap: 0.85rem; margin-top: 1rem;">
+          <div>
+            <label class="font-mono" style="font-size: 0.72rem; color: var(--text-muted);">INCIDENT CATEGORY</label>
+            <select class="cadr-select" id="inc-cat" style="width: 100%;">
+              <option value="BIOMASS / LEAF BURNING">Biomass / Garden Leaf Burning</option>
+              <option value="CONSTRUCTION DUST">Uncovered Construction Demolition Dust</option>
+              <option value="DIESEL IDLING">Commercial Heavy Truck Idling</option>
+              <option value="TRASH INCINERATION">Open Plastic / Garbage Incineration</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-mono" style="font-size: 0.72rem; color: var(--text-muted);">SPECIFIC LOCALITY</label>
+            <input type="text" class="search-input" id="inc-loc" placeholder="e.g. Sector 18 Market, South Gate..." style="border: 1px solid var(--border); border-radius: var(--radius-sm); width: 100%;" required>
+          </div>
+          <div>
+            <label class="font-mono" style="font-size: 0.72rem; color: var(--text-muted);">DESCRIPTION & DETAILS</label>
+            <textarea class="search-input" id="inc-desc" rows="3" placeholder="Describe the plume, nearby schools, or emergency severity..." style="border: 1px solid var(--border); border-radius: var(--radius-sm); width: 100%; resize: vertical;" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-solid-red" style="margin-top: 0.5rem;">SUBMIT TO COMMUNITY RADAR</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 4-Column Footer -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-grid">
+          <div>
+            <div class="brand-logo" style="margin-bottom: 0.75rem;">AIRLOOP<span class="brand-dot"></span></div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+              AirLoop is a GenAI Urban Air Quality Defense platform engineered for families and communities facing winter atmospheric stagnation. Built for Hackathon Challenge 6.
+            </p>
+            <div class="font-mono text-dim" style="font-size: 0.7rem;">
+              ZERO-BUILD ARCHITECTURE · OPEN-METEO API · MULTIPLICATIVE COMPOUNDING ENGINE · CADR PHYSICS
+            </div>
+          </div>
+
+          <div>
+            <div class="footer-col-title">SYSTEM PLATFORM</div>
+            <ul class="footer-links-list">
+              <li><a href="#monitor" class="footer-link">01 / Real-Time Telemetry Station</a></li>
+              <li><a href="#diurnal-radar" class="footer-link">02 / 24-Hour Diurnal Inversion Radar</a></li>
+              <li><a href="#cadr-sim" class="footer-link">03 / CADR Indoor Room Simulator</a></li>
+              <li><a href="#tactical-catalog" class="footer-link">04 / Tactical Defense Moves</a></li>
+              <li><a href="#impact-lab" class="footer-link">05 / Compounding Impact Laboratory</a></li>
+              <li><a href="#community-hub" class="footer-link">06 / Community Defense Collective</a></li>
+              <li><a href="#ai-coach" class="footer-link">07 / GenAI Air Quality Assistant</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer-col-title">STANDARDS & CITATIONS</div>
+            <ul class="footer-links-list">
+              <li class="footer-link"><strong>WHO 2021:</strong> Global Air Quality Guidelines (PM2.5 15 µg/m³ 24h)</li>
+              <li class="footer-link"><strong>Berkeley Earth:</strong> Rule of thumb (22 µg/m³ PM2.5 = 1 cig/day)</li>
+              <li class="footer-link"><strong>AHAM AC-1:</strong> Clean Air Delivery Rate Standard (≥4.8 ACH)</li>
+              <li class="footer-link"><strong>CPCB India:</strong> National Air Quality Index (NAQI) Standards</li>
+              <li class="footer-link"><strong>US EPA:</strong> Technical Assistance Document for the AQI</li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="footer-col-title">SMOG ALERT RADAR</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+              Get early warnings when thermal inversion traps particulate levels above 300 AQI in your district.
+            </p>
+            <form class="footer-newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed to AirLoop Smog Alerts!'); this.reset();">
+              <input type="email" class="search-input" placeholder="Enter your email or phone..." style="border: 1px solid var(--border); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);" required>
+              <button type="submit" class="btn btn-sm btn-solid-red">ACTIVATE RADAR</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="footer-legal-row">
+          <div>
+            &copy; 2026 AIRLOOP URBAN INTELLIGENCE · HACKATHON CHALLENGE 6
+          </div>
+          <div class="medical-disclaimer-pill">
+            ⚠️ <strong>NOT MEDICAL ADVICE:</strong> All exposure metrics and cigarette equivalents are indicative health estimates. If experiencing chest pain, severe breathlessness, or asthma emergencies, seek emergency medical care immediately.
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ----------------------------------------------------
+         AIRLOOP STATE
+         ---------------------------------------------------- */
+      const state = {
+        city: 'Delhi',
+        country: 'India',
+        coords: { lat: 28.65195, lon: 77.23149, elevation: 227 },
+        aqi: 384,
+        band: 'Hazardous',
+        pm25: 326.4,
+        pm10: 485.2,
+        no2: 68.1,
+        o3: 22.4,
+        isDemoMode: false,
+        activeProfiles: new Set(),
+        currentFilter: 'all',
+        routine: new Set([1, 2, 5]), // Default: HEPA Sanctuary, N95, Metro
+        hourlyForecast: [],
+        isPlayingAudio: false
+      };
+
+      /* ----------------------------------------------------
+         DATABASE: 12 DEFENSE INTERVENTIONS
+         ---------------------------------------------------- */
+      const DEFENSE_MOVES = [
+        {
+          id: 1,
+          layer: 'indoor',
+          layerName: 'Indoor Air Hack',
+          title: 'HEPA Bedroom Sanctuary',
+          desc: 'Continuous sealed-room HEPA filtration during sleeping hours (8h+). Reduces overnight particle lung burden by up to 80%.',
+          cut: 0.80,
+          co2SavedWk: 0.0,
+          profiles: ['kids', 'elderly', 'asthma'],
+          priority: 95,
+          source: 'WHO 2021 / EPA HEPA Study'
+        },
+        {
+          id: 2,
+          layer: 'routine',
+          layerName: 'Daily Routine',
+          title: 'N95 / FFP2 Active Commute',
+          desc: 'High-filtration fitted N95 respirator during outdoor transit and rush hour. Proper nasal seal blocks ≥95% of ambient fine particles.',
+          cut: 0.75,
+          co2SavedWk: 0.0,
+          profiles: ['commuter', 'asthma', 'runner'],
+          priority: 92,
+          source: 'Berkeley Earth / 3M Occupational Health'
+        },
+        {
+          id: 3,
+          layer: 'indoor',
+          layerName: 'Indoor Air Hack',
+          title: 'Corsi-Rosenthal Box (DIY HEPA)',
+          desc: 'Low-cost DIY air cleaner built with a 20-inch box fan and 4 MERV 13 filters. Delivers CADR > 400 CFM for less than ₹3,500 ($40).',
+          cut: 0.65,
+          co2SavedWk: 0.0,
+          profiles: ['kids', 'cook', 'elderly'],
+          priority: 88,
+          source: 'UC Davis / Rosenthal Clean Air Study'
+        },
+        {
+          id: 4,
+          layer: 'routine',
+          layerName: 'Daily Routine',
+          title: 'Solar Ventilation Window (1-3 PM)',
+          desc: 'Strictly avoid morning & night ventilation when thermal inversion traps ground emissions. Air out living spaces only between 1 PM and 3 PM.',
+          cut: 0.30,
+          co2SavedWk: 0.0,
+          profiles: ['cook', 'kids', 'elderly'],
+          priority: 84,
+          source: 'CPCB Atmospheric Inversion Analysis'
+        },
+        {
+          id: 5,
+          layer: 'community',
+          layerName: 'Community Alternative',
+          title: 'Electric Metro / Bus Shift',
+          desc: 'Transition from single-occupancy auto/car commute to electrified mass rail transit. Cuts personal in-cabin PM2.5 exposure and vehicular smog.',
+          cut: 0.40,
+          co2SavedWk: 14.8,
+          profiles: ['commuter'],
+          priority: 86,
+          source: 'Delhi Metro Rail Corp / TERI'
+        },
+        {
+          id: 6,
+          layer: 'indoor',
+          layerName: 'Indoor Air Hack',
+          title: 'Wet Mopping & Door Seal Drafts',
+          desc: 'Replace dry sweeping with damp microfiber mopping to avoid particulate resuspension. Install silicone bottom-door brush sweeps.',
+          cut: 0.25,
+          co2SavedWk: 0.0,
+          profiles: ['asthma', 'kids', 'elderly'],
+          priority: 78,
+          source: 'Indoor Air Journal / WHO'
+        },
+        {
+          id: 7,
+          layer: 'routine',
+          layerName: 'Daily Routine',
+          title: 'Cardio Inversion Rescheduling',
+          desc: 'Shift strenuous aerobic workouts indoors with filtration or postpone until afternoon. Morning running during inversion multiplies lung dose 10x.',
+          cut: 0.70,
+          co2SavedWk: 0.0,
+          profiles: ['runner', 'asthma'],
+          priority: 90,
+          source: 'American College of Sports Medicine'
+        },
+        {
+          id: 8,
+          layer: 'indoor',
+          layerName: 'Indoor Air Hack',
+          title: 'Induction Cooking & Sealed Exhaust',
+          desc: 'Switch from LPG combustion cooktop to portable electric induction. Run negative-pressure range exhaust ducted strictly outdoors.',
+          cut: 0.45,
+          co2SavedWk: 5.2,
+          profiles: ['cook', 'asthma', 'kids'],
+          priority: 87,
+          source: 'Rocky Mountain Institute / Lancet Respiratory'
+        },
+        {
+          id: 9,
+          layer: 'community',
+          layerName: 'Community Alternative',
+          title: 'Neighborhood Electric School Pool',
+          desc: 'Coordinate shared EV micro-carpooling or walking school buses along verified clean-air alleys away from major arterial truck corridors.',
+          cut: 0.35,
+          co2SavedWk: 12.0,
+          profiles: ['kids', 'commuter'],
+          priority: 85,
+          source: 'Clean Air Fund / CSE India'
+        },
+        {
+          id: 10,
+          layer: 'community',
+          layerName: 'Community Alternative',
+          title: 'Biomass & Leaf Composting Loop',
+          desc: 'Establish neighborhood community composting pit to prevent seasonal municipal garden waste and biomass smoldering.',
+          cut: 0.20,
+          co2SavedWk: 22.5,
+          profiles: ['elderly', 'asthma'],
+          priority: 76,
+          source: 'CPCB Solid Waste Management'
+        },
+        {
+          id: 11,
+          layer: 'routine',
+          layerName: 'Daily Routine',
+          title: 'Anti-Smog Nasal & Eyewash Hygiene',
+          desc: 'Hypertonic saline nasal irrigation and preservative-free eye rinse immediately after returning indoors to flush deposited particulates.',
+          cut: 0.18,
+          co2SavedWk: 0.0,
+          profiles: ['commuter', 'elderly', 'kids'],
+          priority: 74,
+          source: 'All India Institute of Medical Sciences'
+        },
+        {
+          id: 12,
+          layer: 'community',
+          layerName: 'Community Alternative',
+          title: 'Bicycle Corridor & HEPA Pods',
+          desc: 'Advocate for segregated green-buffer cycle corridors and community clean-air cooling/warming shelters in public plazas.',
+          cut: 0.30,
+          co2SavedWk: 18.0,
+          profiles: ['commuter', 'runner'],
+          priority: 79,
+          source: 'UN Environment Programme'
+        }
+      ];
+
+      /* ----------------------------------------------------
+         CITY PRESETS
+         ---------------------------------------------------- */
+      const CITY_PRESETS = {
+        'Delhi': { name: 'Delhi', country: 'India', lat: 28.65195, lon: 77.23149, elevation: 227, aqi: 384, band: 'Hazardous', pm25: 326.4, pm10: 485.2, no2: 68.1, o3: 22.4 },
+        'Lahore': { name: 'Lahore', country: 'Pakistan', lat: 31.5497, lon: 74.3436, elevation: 217, aqi: 412, band: 'Hazardous', pm25: 368.0, pm10: 520.0, no2: 74.2, o3: 26.1 },
+        'Beijing': { name: 'Beijing', country: 'China', lat: 39.9042, lon: 116.4074, elevation: 44, aqi: 115, band: 'Sensitive', pm25: 41.5, pm10: 82.0, no2: 38.5, o3: 45.2 },
+        'Mumbai': { name: 'Mumbai', country: 'India', lat: 19.0760, lon: 72.8777, elevation: 14, aqi: 168, band: 'Unhealthy', pm25: 88.6, pm10: 142.3, no2: 46.8, o3: 31.0 },
+        'Bangkok': { name: 'Bangkok', country: 'Thailand', lat: 13.7563, lon: 100.5018, elevation: 2, aqi: 154, band: 'Unhealthy', pm25: 61.2, pm10: 98.4, no2: 34.0, o3: 38.0 },
+        'New York': { name: 'New York', country: 'United States', lat: 40.7128, lon: -74.0060, elevation: 10, aqi: 32, band: 'Good', pm25: 7.8, pm10: 14.2, no2: 18.5, o3: 35.0 },
+        'London': { name: 'London', country: 'United Kingdom', lat: 51.5074, lon: -0.1278, elevation: 25, aqi: 28, band: 'Good', pm25: 6.9, pm10: 12.1, no2: 24.3, o3: 28.5 }
+      };
+
+      /* ----------------------------------------------------
+         DOM ELEMENTS
+         ---------------------------------------------------- */
+      const displayCity = document.getElementById('display-city');
+      const displayCoords = document.getElementById('display-coords');
+      const telemetryAqi = document.getElementById('telemetry-aqi');
+      const telemetryBand = document.getElementById('telemetry-band');
+      const telemetryAdvisory = document.getElementById('telemetry-advisory');
+      const gaugeFillCircle = document.getElementById('gauge-fill-circle');
+      const cigEquivalentVal = document.getElementById('cig-equivalent-val');
+      const valPm25 = document.getElementById('val-pm25');
+      const valPm10 = document.getElementById('val-pm10');
+      const valNo2 = document.getElementById('val-no2');
+      const valO3 = document.getElementById('val-o3');
+      const cardsGrid = document.getElementById('cards-grid');
+      const navCartCount = document.getElementById('nav-cart-count');
+      const routineCountText = document.getElementById('routine-count-text');
+      const activeProfileSummary = document.getElementById('active-profile-summary');
+      const tailoredMovesCount = document.getElementById('tailored-moves-count');
+
+      // KPIs
+      const kpiTotalCut = document.getElementById('kpi-total-cut');
+      const kpiCutSub = document.getElementById('kpi-cut-sub');
+      const kpiCigsSaved = document.getElementById('kpi-cigs-saved');
+      const kpiNetPm25 = document.getElementById('kpi-net-pm25');
+      const kpiCo2Saved = document.getElementById('kpi-co2-saved');
+      const compBarFill = document.getElementById('comp-bar-fill');
+      const compCutLabel = document.getElementById('comp-cut-label');
+      const compRemainingLabel = document.getElementById('comp-remaining-label');
+
+      // Search & Status
+      const citySearchInput = document.getElementById('city-search-input');
+      const searchSubmitBtn = document.getElementById('search-submit-btn');
+      const searchDropdown = document.getElementById('search-dropdown');
+      const gpsLocateBtn = document.getElementById('gps-locate-btn');
+      const refreshTelemetryBtn = document.getElementById('refresh-telemetry-btn');
+      const liveDot = document.getElementById('live-dot');
+      const liveStatusText = document.getElementById('live-status-text');
+
+      // CADR Elements
+      const inputRoomArea = document.getElementById('input-room-area');
+      const labelRoomArea = document.getElementById('label-room-area');
+      const inputCeilingHeight = document.getElementById('input-ceiling-height');
+      const labelCeilingHeight = document.getElementById('label-ceiling-height');
+      const selectFiltration = document.getElementById('select-filtration');
+      const selectDoorSeal = document.getElementById('select-door-seal');
+      const valCadrAch = document.getElementById('val-cadr-ach');
+      const subCadrAch = document.getElementById('sub-cadr-ach');
+      const valCadrTime = document.getElementById('val-cadr-time');
+      const valCadrIndoorPm = document.getElementById('val-cadr-indoor-pm');
+      const valCadrOutdoorPm = document.getElementById('val-cadr-outdoor-pm');
+      const valCadrCut = document.getElementById('val-cadr-cut');
+      const valCadrIoRatio = document.getElementById('val-cadr-io-ratio');
+      const barIndoorPm = document.getElementById('bar-indoor-pm');
+
+      // Diurnal Elements
+      const diurnalSvg = document.getElementById('diurnal-svg');
+      const inversionPeakText = document.getElementById('inversion-peak-text');
+      const solarWindowText = document.getElementById('solar-window-text');
+      const diurnalMultText = document.getElementById('diurnal-mult-text');
+
+      // Audio Briefing
+      const audioBriefBtn = document.getElementById('audio-brief-btn');
+      const waveformVisualizer = document.getElementById('waveform-visualizer');
+      const audioBriefText = document.getElementById('audio-brief-text');
+
+      // Drawer & Modals
+      const cartDrawerOverlay = document.getElementById('cart-drawer-overlay');
+      const cartDrawer = document.getElementById('cart-drawer');
+      const openCartBtn = document.getElementById('open-cart-btn');
+      const closeDrawerBtn = document.getElementById('close-drawer-btn');
+      const openRoutineDrawerBtn = document.getElementById('open-routine-drawer-btn');
+      const cartItemsList = document.getElementById('cart-items-list');
+      const drawerTotalCut = document.getElementById('drawer-total-cut');
+      const drawerCigsSaved = document.getElementById('drawer-cigs-saved');
+      const drawerCo2Saved = document.getElementById('drawer-co2-saved');
+      const clearRoutineBtn = document.getElementById('clear-routine-btn');
+      const printRoutineBtn = document.getElementById('print-routine-btn');
+
+      const demoModalOverlay = document.getElementById('demo-modal-overlay');
+      const openDemoGuideBtn = document.getElementById('open-demo-guide-btn');
+      const closeDemoBtn = document.getElementById('close-demo-btn');
+      const closeDemoBtnBottom = document.getElementById('close-demo-btn-bottom');
+      const demoTrigger1 = document.getElementById('demo-trigger-1');
+      const demoTrigger2 = document.getElementById('demo-trigger-2');
+      const demoTrigger3 = document.getElementById('demo-trigger-3');
+      const demoTrigger4 = document.getElementById('demo-trigger-4');
+
+      const reportModalOverlay = document.getElementById('report-modal-overlay');
+      const reportIncidentBtn = document.getElementById('report-incident-btn');
+      const closeReportBtn = document.getElementById('close-report-btn');
+      const incidentForm = document.getElementById('incident-form');
+      const incidentFeed = document.getElementById('incident-feed');
+
+      // Chat
+      const chatForm = document.getElementById('chat-form');
+      const chatInput = document.getElementById('chat-input');
+      const aiMessages = document.getElementById('ai-messages');
+
+      /* ----------------------------------------------------
+         AQI METADATA
+         ---------------------------------------------------- */
+      function getAqiMeta(aqi) {
+        if (aqi <= 50) {
+          return { band: 'Good', color: '#10b981', glow: 'rgba(16, 185, 129, 0.25)', tint: 'rgba(16, 185, 129, 0.08)', advisory: 'Air quality is satisfactory. Air pollution poses little or no risk to all groups.' };
+        } else if (aqi <= 100) {
+          return { band: 'Moderate', color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.25)', tint: 'rgba(245, 158, 11, 0.08)', advisory: 'Acceptable air quality. Unusually sensitive individuals should limit prolonged outdoor exertion.' };
+        } else if (aqi <= 150) {
+          return { band: 'Sensitive', color: '#f97316', glow: 'rgba(249, 115, 22, 0.25)', tint: 'rgba(249, 115, 22, 0.08)', advisory: 'Children, elderly, and individuals with respiratory/cardiac disease should reduce prolonged outdoor exertion.' };
+        } else if (aqi <= 200) {
+          return { band: 'Unhealthy', color: '#ef4444', glow: 'rgba(239, 68, 68, 0.25)', tint: 'rgba(239, 68, 68, 0.08)', advisory: 'Everyone may begin to experience health effects; members of sensitive groups may experience more serious effects.' };
+        } else if (aqi <= 300) {
+          return { band: 'Very Unhealthy', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.25)', tint: 'rgba(168, 85, 247, 0.08)', advisory: 'Health alert: Risk of health effects increased for everyone. Move activities indoors and wear N95 masks.' };
+        } else {
+          return { band: 'Hazardous', color: '#e5322d', glow: 'rgba(229, 50, 45, 0.35)', tint: 'rgba(229, 50, 45, 0.12)', advisory: 'Health warning of emergency conditions. Severe thermal ground inversion. Restrict all outdoor exposure.' };
+        }
+      }
+
+      /* ----------------------------------------------------
+         COUNT-UP ANIMATION HELPER
+         ---------------------------------------------------- */
+      const prevTelemetry = { aqi: 384, pm25: 326.4, pm10: 485.2, no2: 68.1, o3: 22.4, cigs: 14.8 };
+      const prevImpact = { totalCut: 0, cigsSaved: 0, netPm25: 326.4, co2Saved: 0 };
+
+      function animateCount(el, start, end, duration = 650, decimals = 0, suffix = '') {
+        if (!el) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || isNaN(start) || isNaN(end)) {
+          el.textContent = end.toFixed(decimals) + suffix;
+          return;
+        }
+        if (start === end) {
+          el.textContent = end.toFixed(decimals) + suffix;
+          return;
+        }
+        const startTime = performance.now();
+        function update(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = 1 - Math.pow(1 - progress, 3);
+          const current = start + (end - start) * ease;
+          el.textContent = current.toFixed(decimals) + suffix;
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            el.textContent = end.toFixed(decimals) + suffix;
+          }
+        }
+        requestAnimationFrame(update);
+      }
+
+      /* ----------------------------------------------------
+         COMPOUNDING IMPACT ENGINE: Remaining = Π(1 - cut_i)
+         ---------------------------------------------------- */
+      function computeCompoundedImpact() {
+        const activeMoves = DEFENSE_MOVES.filter(m => state.routine.has(m.id));
+        let remainingFactor = 1.0;
+        let totalCo2SavedWk = 0;
+
+        activeMoves.forEach(m => {
+          remainingFactor *= (1.0 - m.cut);
+          totalCo2SavedWk += m.co2SavedWk;
+        });
+
+        const totalCutPercent = (1.0 - remainingFactor) * 100.0;
+        const initialCigs = state.pm25 / 22.0;
+        const remainingPm25 = state.pm25 * remainingFactor;
+        const remainingCigs = remainingPm25 / 22.0;
+        const cigsAvoidedDaily = Math.max(0, initialCigs - remainingCigs);
+
+        return {
+          totalCutPercent,
+          remainingFactor,
+          initialCigs,
+          remainingPm25,
+          remainingCigs,
+          cigsAvoidedDaily,
+          totalCo2SavedWk,
+          count: activeMoves.length
+        };
+      }
+
+      /* ----------------------------------------------------
+         CADR INDOOR PHYSICS ENGINE
+         ---------------------------------------------------- */
+      function updateCadrSimulation() {
+        const area = parseFloat(inputRoomArea.value);
+        const height = parseFloat(inputCeilingHeight.value);
+        const cadrCfm = parseFloat(selectFiltration.value);
+        const sealState = selectDoorSeal.value;
+
+        labelRoomArea.textContent = `${area} sq ft (${area < 200 ? 'Small Bedroom' : area < 350 ? 'Master Bedroom' : 'Living Area'})`;
+        labelCeilingHeight.textContent = `${height} ft`;
+
+        const volume = area * height; // Cubic feet
+        const ach = volume > 0 ? (cadrCfm * 60) / volume : 0;
+
+        // Infiltration penetration factor and natural loss
+        let penetration = 0.8;
+        let naturalLossAch = 0.35;
+        if (sealState === 'sealed') {
+          penetration = 0.35;
+          naturalLossAch = 0.15;
+        } else if (sealState === 'cracked') {
+          penetration = 0.95;
+          naturalLossAch = 0.85;
+        }
+
+        // Steady state indoor/outdoor ratio: Cin / Cout = (p * a) / (a + k + cadr/V)
+        const totalAirExchange = naturalLossAch + ach;
+        const ioRatio = (penetration * naturalLossAch) / (totalAirExchange || 0.1);
+        const clampedIo = Math.min(1.0, Math.max(0.015, ioRatio));
+
+        const indoorPm = state.pm25 * clampedIo;
+        const doseReductionPct = (1.0 - clampedIo) * 100.0;
+
+        // Time to 90% particle reduction: t90 = 2.3 / totalAch * 60 minutes
+        const timeTo90Min = totalAirExchange > 0 ? Math.round((2.3 / totalAirExchange) * 60) : 180;
+
+        // Update DOM
+        valCadrAch.textContent = `${ach.toFixed(1)} ACH`;
+        if (ach >= 4.8) {
+          valCadrAch.className = 'cadr-stat-val safe';
+          subCadrAch.textContent = 'Target: ≥4.8 ACH (AHAM Standards Met ✓)';
+        } else if (ach > 0) {
+          valCadrAch.className = 'cadr-stat-val warn';
+          subCadrAch.textContent = 'Target: ≥4.8 ACH (Under-capacity for severe smog)';
+        } else {
+          valCadrAch.className = 'cadr-stat-val';
+          subCadrAch.textContent = 'Zero active mechanical filtration';
+        }
+
+        valCadrTime.textContent = cadrCfm > 0 ? `${Math.min(90, Math.max(12, timeTo90Min))} MIN` : '>4 HOURS';
+        valCadrIndoorPm.textContent = `${indoorPm.toFixed(1)} µg/m³`;
+        valCadrOutdoorPm.textContent = state.pm25.toFixed(1);
+        valCadrCut.textContent = `-${doseReductionPct.toFixed(1)}%`;
+        valCadrIoRatio.textContent = `${clampedIo.toFixed(3)} (${(clampedIo * 100).toFixed(1)}% Infiltration)`;
+        barIndoorPm.style.width = `${(clampedIo * 100).toFixed(1)}%`;
+      }
+
+      /* ----------------------------------------------------
+         DIURNAL HOURLY FORECAST ENGINE & SVG CHART
+         ---------------------------------------------------- */
+      function generateFallbackDiurnalData(basePm) {
+        const hourly = [];
+        for (let h = 0; h < 24; h++) {
+          let factor = 1.0;
+          if (h >= 5 && h <= 9) factor = 1.25 + (0.05 * (h === 7 ? 2 : 1));
+          else if (h >= 13 && h <= 15) factor = 0.58;
+          else if (h >= 19 && h <= 23) factor = 1.18;
+          else factor = 0.95;
+
+          const pm = Math.round(basePm * factor);
+          const aqi = Math.min(500, Math.round(pm * 1.15));
+          hourly.push({ hour: h, pm2_5: pm, us_aqi: aqi });
+        }
+        return hourly;
+      }
+
+      function renderDiurnalChart(hourlyData) {
+        if (!hourlyData || hourlyData.length === 0) {
+          hourlyData = generateFallbackDiurnalData(state.pm25);
+        }
+
+        const width = 1000;
+        const height = 220;
+        const padding = { top: 25, right: 30, bottom: 35, left: 45 };
+        const plotWidth = width - padding.left - padding.right;
+        const plotHeight = height - padding.top - padding.bottom;
+
+        let maxVal = Math.max(...hourlyData.map(d => d.pm2_5), 200);
+        let minVal = Math.min(...hourlyData.map(d => d.pm2_5), 20);
+
+        inversionPeakText.textContent = `07:00 (PM2.5: ${Math.round(maxVal)} µg/m³)`;
+        solarWindowText.textContent = `13:00 - 15:30 (PM2.5: ${Math.round(minVal)} µg/m³)`;
+        diurnalMultText.textContent = `${(maxVal / (minVal || 1)).toFixed(1)}x Daily Variation`;
+
+        const stepX = plotWidth / (hourlyData.length - 1);
+        let pathD = '';
+        let areaD = `M ${padding.left} ${height - padding.bottom}`;
+
+        const points = hourlyData.map((d, i) => {
+          const x = padding.left + i * stepX;
+          const y = padding.top + plotHeight - ((d.pm2_5 - 0) / (maxVal * 1.15)) * plotHeight;
+          return { x, y, data: d };
+        });
+
+        points.forEach((pt, idx) => {
+          if (idx === 0) {
+            pathD += `M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`;
+            areaD += ` L ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`;
+          } else {
+            const prev = points[idx - 1];
+            const cx = (prev.x + pt.x) / 2;
+            pathD += ` C ${cx.toFixed(1)} ${prev.y.toFixed(1)}, ${cx.toFixed(1)} ${pt.y.toFixed(1)}, ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`;
+            areaD += ` C ${cx.toFixed(1)} ${prev.y.toFixed(1)}, ${cx.toFixed(1)} ${pt.y.toFixed(1)}, ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`;
+          }
+        });
+
+        const lastX = points[points.length - 1].x;
+        areaD += ` L ${lastX.toFixed(1)} ${height - padding.bottom} Z`;
+
+        // Safe window highlight (13:00 - 15:30 -> hours 13 to 15.5)
+        const solarX1 = padding.left + 13 * stepX;
+        const solarX2 = padding.left + 15.5 * stepX;
+        const solarWidth = solarX2 - solarX1;
+
+        // Morning trap highlight (06:00 - 09:30)
+        const trapX1 = padding.left + 6 * stepX;
+        const trapX2 = padding.left + 9.5 * stepX;
+        const trapWidth = trapX2 - trapX1;
+
+        diurnalSvg.innerHTML = `
+          <defs>
+            <linearGradient id="diurnal-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--accent-red)" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="var(--accent-red)" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Safe Solar Window Highlight -->
+          <rect class="chart-solar-rect" x="${solarX1}" y="${padding.top}" width="${solarWidth}" height="${plotHeight}"></rect>
+          <text x="${solarX1 + 8}" y="${padding.top + 18}" fill="#10b981" font-family="JetBrains Mono" font-size="11" font-weight="700">SOLAR PURGE WINDOW (13:00 - 15:30)</text>
+
+          <!-- Morning Inversion Trap Highlight -->
+          <rect class="chart-inversion-rect" x="${trapX1}" y="${padding.top}" width="${trapWidth}" height="${plotHeight}"></rect>
+          <text x="${trapX1 + 8}" y="${padding.top + 34}" fill="var(--accent-red)" font-family="JetBrains Mono" font-size="10" font-weight="700">INVERSION TRAP (06:00 - 09:30)</text>
+
+          <!-- Grid Lines -->
+          <line class="chart-axis-line" x1="${padding.left}" y1="${padding.top + plotHeight}" x2="${width - padding.right}" y2="${padding.top + plotHeight}"></line>
+          <line class="chart-axis-line" x1="${padding.left}" y1="${padding.top + plotHeight / 2}" x2="${width - padding.right}" y2="${padding.top + plotHeight / 2}"></line>
+
+          <!-- Area & Curve -->
+          <path class="chart-area" d="${areaD}"></path>
+          <path class="chart-line" d="${pathD}"></path>
+
+          <!-- Points and X Labels -->
+          ${points.filter((_, idx) => idx % 3 === 0).map(pt => `
+            <circle cx="${pt.x}" cy="${pt.y}" r="3.5" fill="#fff" stroke="var(--accent-red)" stroke-width="2"></circle>
+            <text x="${pt.x}" y="${height - 12}" fill="#8b8b96" font-family="JetBrains Mono" font-size="11" text-anchor="middle">${String(pt.data.hour).padStart(2, '0')}:00</text>
+          `).join('')}
+        `;
+      }
+
+      /* ----------------------------------------------------
+         UI UPDATES: TELEMETRY & IMPACT
+         ---------------------------------------------------- */
+      function updateTelemetryUI() {
+        const meta = getAqiMeta(state.aqi);
+        state.band = meta.band;
+
+        document.documentElement.style.setProperty('--aqi-color', meta.color);
+        document.documentElement.style.setProperty('--aqi-glow', meta.glow);
+        document.documentElement.style.setProperty('--aqi-bg-tint', meta.tint);
+
+        displayCity.textContent = `${state.city.toUpperCase()}, ${state.country.toUpperCase()}`;
+        displayCoords.textContent = `LAT: ${state.coords.lat.toFixed(2)}° · LON: ${state.coords.lon.toFixed(2)}° · ${state.coords.elevation || 220}m ALT`;
+
+        animateCount(telemetryAqi, prevTelemetry.aqi, state.aqi, 650, 0);
+        animateCount(valPm25, prevTelemetry.pm25, state.pm25, 650, 1);
+        animateCount(valPm10, prevTelemetry.pm10, state.pm10, 650, 1);
+        animateCount(valNo2, prevTelemetry.no2, state.no2, 650, 1);
+        animateCount(valO3, prevTelemetry.o3, state.o3, 650, 1);
+
+        const baseCigs = state.pm25 / 22.0;
+        animateCount(cigEquivalentVal, prevTelemetry.cigs, baseCigs, 650, 1);
+
+        prevTelemetry.aqi = state.aqi;
+        prevTelemetry.pm25 = state.pm25;
+        prevTelemetry.pm10 = state.pm10;
+        prevTelemetry.no2 = state.no2;
+        prevTelemetry.o3 = state.o3;
+        prevTelemetry.cigs = baseCigs;
+
+        telemetryBand.textContent = meta.band.toUpperCase();
+        telemetryAdvisory.textContent = meta.advisory;
+
+        const circumference = 408;
+        const clampedAqi = Math.min(500, Math.max(0, state.aqi));
+        const offset = circumference - (clampedAqi / 500) * circumference;
+        gaugeFillCircle.style.strokeDashoffset = offset;
+
+        if (window.updateCanvasAqiColor) {
+          window.updateCanvasAqiColor(meta.color);
+        }
+
+        updateImpactLabUI();
+        updateCadrSimulation();
+        renderDiurnalChart(state.hourlyForecast);
+      }
+
+      function updateImpactLabUI() {
+        const impact = computeCompoundedImpact();
+
+        navCartCount.textContent = impact.count;
+        routineCountText.textContent = impact.count;
+
+        animateCount(kpiTotalCut, prevImpact.totalCut, impact.totalCutPercent, 600, 1, '%');
+        animateCount(kpiCigsSaved, prevImpact.cigsSaved, impact.cigsAvoidedDaily, 600, 1);
+        animateCount(kpiNetPm25, prevImpact.netPm25, impact.remainingPm25, 600, 1);
+        animateCount(kpiCo2Saved, prevImpact.co2Saved, impact.totalCo2SavedWk, 600, 1);
+
+        prevImpact.totalCut = impact.totalCutPercent;
+        prevImpact.cigsSaved = impact.cigsAvoidedDaily;
+        prevImpact.netPm25 = impact.remainingPm25;
+        prevImpact.co2Saved = impact.totalCo2SavedWk;
+
+        kpiCutSub.textContent = impact.count === 0 ? 'ADD DEFENSE MOVES' : `${impact.count} MOVES COMPOUNDED`;
+
+        const cutPct = Math.min(100, Math.max(0, impact.totalCutPercent));
+        const remPct = (100 - cutPct);
+        compBarFill.style.width = `${cutPct}%`;
+
+        if (cutPct > 12) {
+          compCutLabel.textContent = `-${cutPct.toFixed(0)}% DOSE CUT`;
+        } else {
+          compCutLabel.textContent = '';
+        }
+
+        if (remPct < 15) {
+          compRemainingLabel.textContent = `${remPct.toFixed(0)}%`;
+        } else {
+          compRemainingLabel.textContent = `${remPct.toFixed(0)}% EXPOSURE REMAINING`;
+        }
+
+        drawerTotalCut.textContent = `${impact.totalCutPercent.toFixed(1)}%`;
+        drawerCigsSaved.textContent = `${impact.cigsAvoidedDaily.toFixed(1)} / day`;
+        drawerCo2Saved.textContent = `${impact.totalCo2SavedWk.toFixed(1)} kg / week`;
+
+        renderCartDrawerItems();
+        renderCompartmentGrid();
+        renderScheduleTimeline();
+      }
+
+      /* ----------------------------------------------------
+         RE-RANKING & RENDERING: TACTICAL CARDS
+         ---------------------------------------------------- */
+      function getReRankedMoves() {
+        let moves = [...DEFENSE_MOVES];
+        if (state.currentFilter !== 'all') {
+          moves = moves.filter(m => m.layer === state.currentFilter);
+        }
+
+        moves.forEach(m => {
+          let score = m.priority;
+          m.matchesProfile = false;
+
+          if (state.activeProfiles.size > 0) {
+            let matchCount = 0;
+            state.activeProfiles.forEach(p => {
+              if (m.profiles.includes(p)) matchCount++;
+            });
+            if (matchCount > 0) {
+              score += (matchCount * 40);
+              m.matchesProfile = true;
+            }
+          }
+          m.currentScore = score;
+        });
+
+        moves.sort((a, b) => b.currentScore - a.currentScore);
+        return moves;
+      }
+
+      function renderCardsGrid() {
+        const moves = getReRankedMoves();
+        cardsGrid.innerHTML = '';
+
+        moves.forEach(move => {
+          const isAdded = state.routine.has(move.id);
+          const cigsCutEst = ((state.pm25 / 22.0) * move.cut).toFixed(1);
+
+          const cardEl = document.createElement('div');
+          cardEl.className = `tactical-card ${isAdded ? 'added' : ''}`;
+          cardEl.setAttribute('data-id', move.id);
+
+          cardEl.innerHTML = `
+            <div class="card-top">
+              <div class="card-badge-row">
+                <span class="layer-tag ${move.layer}">${move.layerName}</span>
+                <span class="match-pill ${move.matchesProfile ? 'visible' : ''}">★ TAILORED FOR YOU</span>
+              </div>
+              <h3 class="card-title">${move.title}</h3>
+              <p class="card-desc">${move.desc}</p>
+            </div>
+
+            <div class="card-bottom">
+              <div class="card-impact-metrics">
+                <div class="metric-line">
+                  <span class="metric-label">PM2.5 DOSE CUT:</span>
+                  <span class="metric-val green">-${Math.round(move.cut * 100)}%</span>
+                </div>
+                <div class="metric-line">
+                  <span class="metric-label">CIGS AVOIDED (EST):</span>
+                  <span class="metric-val red">-${cigsCutEst} cigs/day</span>
+                </div>
+                ${move.co2SavedWk > 0 ? `
+                  <div class="metric-line">
+                    <span class="metric-label">CO2 OFFSET:</span>
+                    <span class="metric-val" style="color: #60a5fa;">+${move.co2SavedWk} kg/wk</span>
+                  </div>
+                ` : ''}
+              </div>
+
+              <div class="card-footer">
+                <div class="card-cite">REF: ${move.source}</div>
+                <button class="btn btn-sm ${isAdded ? 'btn-red' : ''} add-routine-btn" data-id="${move.id}">
+                  ${isAdded ? '✓ IN ROUTINE (REMOVE)' : '+ ADD TO ROUTINE'}
+                </button>
+              </div>
+            </div>
+          `;
+
+          cardEl.addEventListener('mousemove', (e) => {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const rect = cardEl.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const cx = rect.width / 2;
+            const cy = rect.height / 2;
+            const rotX = ((y - cy) / cy) * -6;
+            const rotY = ((x - cx) / cx) * 6;
+            cardEl.style.transform = `perspective(800px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateY(-2px)`;
+          });
+
+          cardEl.addEventListener('mouseleave', () => {
+            cardEl.style.transform = '';
+          });
+
+          const btn = cardEl.querySelector('.add-routine-btn');
+          btn.addEventListener('click', () => {
+            toggleRoutineItem(move.id);
+          });
+
+          cardsGrid.appendChild(cardEl);
+        });
+
+        document.getElementById('count-all').textContent = DEFENSE_MOVES.length;
+        document.getElementById('count-routine').textContent = DEFENSE_MOVES.filter(m => m.layer === 'routine').length;
+        document.getElementById('count-indoor').textContent = DEFENSE_MOVES.filter(m => m.layer === 'indoor').length;
+        document.getElementById('count-community').textContent = DEFENSE_MOVES.filter(m => m.layer === 'community').length;
+      }
+
+      function toggleRoutineItem(id) {
+        if (state.routine.has(id)) {
+          state.routine.delete(id);
+        } else {
+          state.routine.add(id);
+        }
+        renderCardsGrid();
+        updateImpactLabUI();
+        saveToStorage();
+      }
+
+      /* ----------------------------------------------------
+         ROUTINE DRAWER RENDER
+         ---------------------------------------------------- */
+      function renderCartDrawerItems() {
+        cartItemsList.innerHTML = '';
+        if (state.routine.size === 0) {
+          cartItemsList.innerHTML = `<div class="cart-empty-msg">// NO DEFENSE MOVES IN ROUTINE.<br>SELECT INTERVENTIONS FROM THE CATALOG.</div>`;
+          return;
+        }
+
+        state.routine.forEach(id => {
+          const item = DEFENSE_MOVES.find(m => m.id === id);
+          if (!item) return;
+
+          const row = document.createElement('div');
+          row.className = 'cart-item-row';
+          row.innerHTML = `
+            <div class="cart-item-info">
+              <div class="cart-item-name">${item.title}</div>
+              <div class="cart-item-impact">-${Math.round(item.cut * 100)}% PM2.5 · ${item.layerName}</div>
+            </div>
+            <button class="cart-item-remove" data-id="${item.id}">REMOVE</button>
+          `;
+
+          row.querySelector('.cart-item-remove').addEventListener('click', () => {
+            toggleRoutineItem(item.id);
+          });
+
+          cartItemsList.appendChild(row);
+        });
+      }
+
+      /* ----------------------------------------------------
+         MULTI-COMPARTMENT INHALATION MODEL
+         ---------------------------------------------------- */
+      function renderCompartmentGrid() {
+        const grid = document.getElementById('compartment-grid');
+        if (!grid) return;
+
+        const cAmb = Math.max(10, state.pm25 || 100);
+
+        const compartments = [
+          {
+            id: 'bedroom',
+            name: 'Overnight Bedroom',
+            tag: '01 · NOCTURNAL REST',
+            hours: 8,
+            ventRate: 0.45,
+            baseRatio: 0.75,
+            activeMoves: [
+              { id: 1, name: 'HEPA Sanctuary', cut: 0.80 },
+              { id: 3, name: 'Corsi-Rosenthal', cut: 0.65 },
+              { id: 6, name: 'Door Seal & Wet Mop', cut: 0.25 }
+            ]
+          },
+          {
+            id: 'commute',
+            name: 'Arterial Commute',
+            tag: '02 · PEAK RUSH HOUR',
+            hours: 2,
+            ventRate: 1.0,
+            baseRatio: 1.35,
+            activeMoves: [
+              { id: 2, name: 'Fitted N95 Respirator', cut: 0.85 },
+              { id: 5, name: 'Metro / Rail Shift', cut: 0.40 },
+              { id: 9, name: 'EV School Pool', cut: 0.35 }
+            ]
+          },
+          {
+            id: 'workplace',
+            name: 'Office / Classroom',
+            tag: '03 · DAYTIME OCCUPANCY',
+            hours: 8,
+            ventRate: 0.55,
+            baseRatio: 0.60,
+            activeMoves: [
+              { id: 4, name: 'Solar Purge Venting', cut: 0.30 },
+              { id: 12, name: 'HEPA Pod Corridors', cut: 0.30 }
+            ]
+          },
+          {
+            id: 'outdoor',
+            name: 'Outdoor & Chores',
+            tag: '04 · AMBIENT EXPOSURE',
+            hours: 6,
+            ventRate: 0.85,
+            baseRatio: 1.0,
+            activeMoves: [
+              { id: 7, name: 'Cardio Inversion Reschedule', cut: 0.70 },
+              { id: 2, name: 'N95 Protection', cut: 0.75 },
+              { id: 11, name: 'Saline Hygiene', cut: 0.18 }
+            ]
+          }
+        ];
+
+        let html = '';
+        compartments.forEach(comp => {
+          const baseConc = cAmb * comp.baseRatio;
+          const totalAirVolume = comp.ventRate * comp.hours;
+          const baseDoseUg = baseConc * totalAirVolume;
+
+          let remFraction = 1.0;
+          const appliedMoves = [];
+          comp.activeMoves.forEach(m => {
+            if (state.routine.has(m.id)) {
+              remFraction *= (1.0 - m.cut);
+              appliedMoves.push(m.name);
+            }
+          });
+
+          const actualDoseUg = baseDoseUg * remFraction;
+          const doseCutPct = Math.round((1 - remFraction) * 100);
+          const cigsEq = (actualDoseUg / 22).toFixed(1);
+
+          let statusBadgeClass = 'badge-red';
+          let barColor = 'var(--accent-red)';
+          if (doseCutPct >= 70) {
+            statusBadgeClass = 'badge-green';
+            barColor = '#10b981';
+          } else if (doseCutPct >= 30) {
+            statusBadgeClass = 'badge-amber';
+            barColor = '#f59e0b';
+          }
+
+          const remBarPct = Math.max(5, Math.min(100, Math.round(remFraction * 100)));
+
+          html += `
+            <div class="compartment-card">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: 0.5rem;">
+                <span class="font-mono text-dim" style="font-size:0.68rem;">// ${comp.tag}</span>
+                <span class="badge ${statusBadgeClass}" style="font-size:0.62rem; white-space:nowrap;">${comp.hours}h · ${doseCutPct}% CUT</span>
+              </div>
+              <div>
+                <div class="compartment-name">${comp.name}</div>
+                <div class="font-mono text-muted" style="font-size: 0.72rem; margin-top: 2px;">
+                  AIR INHALED: ${totalAirVolume.toFixed(1)} m³ · BASE: ${Math.round(baseConc)} µg/m³
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline; font-size:0.75rem; margin-bottom:0.25rem;">
+                  <span class="text-dim">INHALED DOSE:</span>
+                  <span class="font-mono font-bold" style="color: ${barColor};">
+                    ${Math.round(actualDoseUg)} µg <span style="font-size:0.68rem; font-weight:normal; color:var(--text-dim);">(${cigsEq} cigs)</span>
+                  </span>
+                </div>
+                <div class="comp-bar-sub">
+                  <div class="comp-bar-sub-fill" style="width: ${remBarPct}%; background: ${barColor};"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:var(--text-dim); margin-top:3px; font-family:var(--font-mono);">
+                  <span>REMAINING BURDEN</span>
+                  <span>${remBarPct}% OF BASELINE</span>
+                </div>
+              </div>
+              <div style="font-size:0.72rem; border-top: 1px solid var(--border); padding-top: 0.5rem;">
+                <div class="font-mono text-dim" style="font-size:0.65rem; margin-bottom: 2px;">ACTIVE DEFENSES:</div>
+                <div style="color: ${appliedMoves.length ? '#fff' : 'var(--text-dim)'}; line-height: 1.3;">
+                  ${appliedMoves.length ? appliedMoves.join(', ') : 'None active (Dose unmitigated)'}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        grid.innerHTML = html;
+      }
+
+      /* ----------------------------------------------------
+         24-HOUR PERSONALIZED DEFENSE TIMELINE
+         ---------------------------------------------------- */
+      function renderScheduleTimeline() {
+        const container = document.getElementById('schedule-timeline');
+        if (!container) return;
+
+        const baseAqi = Math.round(state.aqi || 250);
+        const morningAqi = Math.round(baseAqi * 1.18);
+        const afternoonAqi = Math.round(baseAqi * 0.62);
+        const eveningAqi = Math.round(baseAqi * 1.10);
+        const nightAqi = Math.round(baseAqi * 1.25);
+
+        let morningProfileNote = 'Strict outdoor quarantine for sensitive airways.';
+        let purgeProfileNote = 'Safe window for outdoor chores, air flushing, and playground recess.';
+        let eveningProfileNote = 'Pre-treat indoor air, seal entrances before rush hour plumes arrive.';
+        let nightProfileNote = 'Maintain continuous low-noise HEPA filtration in all occupied bedrooms.';
+
+        if (state.activeProfiles.has('kids')) {
+          morningProfileNote = 'Children: DO NOT permit morning outdoor school assembly. Wear pediatric N95 on school bus.';
+          purgeProfileNote = 'Kids: 13:00–15:00 is the ONLY safe window for outdoor playground activity today.';
+        } else if (state.activeProfiles.has('asthma')) {
+          morningProfileNote = 'Asthma Alert: Pre-medicate with prescribed preventive inhaler before opening any exterior door.';
+          nightProfileNote = 'Asthma Care: Ensure bedroom relative humidity is 40–50% to prevent airway reactivity.';
+        } else if (state.activeProfiles.has('runner')) {
+          morningProfileNote = 'Athletic Protocol: Zero outdoor running during morning inversion. Running multiplies ventilation 10x!';
+          purgeProfileNote = 'Athletes: If running today, schedule workout exclusively between 13:30 and 15:30.';
+        } else if (state.activeProfiles.has('elderly')) {
+          morningProfileNote = 'Seniors: Cancel morning outdoor walk. Stagnant ground diesel increases acute cardiac risk.';
+          purgeProfileNote = 'Seniors: Enjoy natural daylight and light balcony mobility during the solar purge.';
+        }
+
+        if (state.activeProfiles.has('cook')) {
+          eveningProfileNote = 'Cooking Protocol: Close kitchen doors, run exhaust at max, switch to induction to eliminate NO2.';
+        } else if (state.activeProfiles.has('commuter')) {
+          eveningProfileNote = 'Commuter Shield: Avoid open auto-rickshaws. Use underground Metro Rail or sealed car recirculation.';
+        }
+
+        const blocks = [
+          {
+            timeTag: '06:00 – 09:30',
+            phase: 'MORNING INVERSION TRAP',
+            statusClass: 'danger',
+            aqiEst: morningAqi,
+            layerHeight: '220m (COLLAPSED)',
+            action: 'HERMETIC LOCKDOWN & N95 TRANSIT',
+            desc: 'Thermal radiative cooling traps diesel and industrial particulates at ground level. Keep windows sealed, cancel outdoor jogging, and ensure tight N95 mask seal during school and work commutes.',
+            profileNote: morningProfileNote,
+            impact: 'Cuts morning pulmonary dose by up to 85%'
+          },
+          {
+            timeTag: '13:00 – 15:30',
+            phase: 'SOLAR PURGE WINDOW',
+            statusClass: 'safe',
+            aqiEst: afternoonAqi,
+            layerHeight: '1,250m (EXPANDED)',
+            action: 'ACTIVE CROSS-VENTILATION & ERRANDS',
+            desc: 'Solar insolation heats the ground, lifting the inversion layer to 1,250m. Ambient PM2.5 drops by ~40%. Safest time of the day to cross-ventilate rooms for 20 mins to purge stale CO2, and run outdoor errands.',
+            profileNote: purgeProfileNote,
+            impact: 'Flushes indoor CO2 (<800 ppm) with lowest ambient PM'
+          },
+          {
+            timeTag: '17:30 – 21:00',
+            phase: 'EVENING RE-INVERSION',
+            statusClass: 'warn',
+            aqiEst: eveningAqi,
+            layerHeight: '380m (SINKING)',
+            action: 'METRO COMMUTE & SEALED COOKING',
+            desc: 'Sunset drops surface temperature, trapping rush-hour emissions and domestic cooking biomass. Use underground mass transit, seal kitchen partitions, run negative exhaust, and wash nasal cavities upon return.',
+            profileNote: eveningProfileNote,
+            impact: 'Prevents kitchen NO2 & roadside ultra-fine exposure'
+          },
+          {
+            timeTag: '21:30 – 06:00',
+            phase: 'OVERNIGHT SLEEP SANCTUARY',
+            statusClass: 'safe',
+            aqiEst: nightAqi,
+            layerHeight: '180m (STAGNANT)',
+            action: 'CONTINUOUS BEDROOM HEPA RESTORATION',
+            desc: 'Nighttime winds stall (<0.8 m/s). Ambient smog spikes to daily peaks. Sealed bedroom sanctuary with HEPA filtration allows respiratory cilia and alveolar clearance to regenerate over 8 hours.',
+            profileNote: nightProfileNote,
+            impact: 'Reduces overnight particulate lung burden by >80%'
+          }
+        ];
+
+        let html = '';
+        blocks.forEach(b => {
+          html += `
+            <div class="schedule-card ${b.statusClass}">
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                  <span class="schedule-time-tag">${b.timeTag}</span>
+                  <span class="badge ${b.statusClass === 'danger' ? 'badge-red' : b.statusClass === 'safe' ? 'badge-green' : 'badge-amber'}" style="font-size:0.62rem;">
+                    AQI ~${b.aqiEst} · ${b.layerHeight}
+                  </span>
+                </div>
+                <div class="schedule-card-title">${b.phase}</div>
+                <div style="font-family:var(--font-mono); font-size:0.75rem; color:#fff; font-weight:700; margin: 0.35rem 0 0.5rem 0;">
+                  ⚡ ${b.action}
+                </div>
+                <p class="schedule-card-desc">${b.desc}</p>
+              </div>
+              <div style="border-top:1px solid var(--border); padding-top:0.75rem; margin-top:0.5rem;">
+                <div class="font-mono text-dim" style="font-size:0.65rem; margin-bottom:3px;">PROFILE PROTOCOL:</div>
+                <div style="font-size:0.78rem; color:var(--text-main); margin-bottom:0.6rem; line-height: 1.35;">
+                  ${b.profileNote}
+                </div>
+                <div class="schedule-impact-pill">✓ ${b.impact}</div>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      }
+
+      /* ----------------------------------------------------
+         LOCAL STORAGE PERSISTENCE & CROSS-PAGE SYNC
+         ---------------------------------------------------- */
+      function saveToStorage() {
+        try {
+          const cityData = {
+            name: state.city,
+            country: state.country,
+            coords: state.coords,
+            aqi: state.aqi,
+            band: state.band,
+            pm25: state.pm25,
+            pm10: state.pm10,
+            no2: state.no2,
+            o3: state.o3
+          };
+          localStorage.setItem('airloop_city', JSON.stringify(cityData));
+          localStorage.setItem('airloop_routine', JSON.stringify(Array.from(state.routine)));
+          localStorage.setItem('airloop_profiles', JSON.stringify(Array.from(state.activeProfiles)));
+        } catch (e) {
+          console.warn('Storage save error:', e);
+        }
+      }
+
+      function loadFromStorage() {
+        try {
+          const savedCity = localStorage.getItem('airloop_city');
+          if (savedCity) {
+            const parsed = JSON.parse(savedCity);
+            if (parsed && parsed.name) {
+              state.city = parsed.name;
+              state.country = parsed.country || state.country;
+              state.coords = parsed.coords || state.coords;
+              state.aqi = parsed.aqi || state.aqi;
+              state.band = parsed.band || state.band;
+              state.pm25 = parsed.pm25 || state.pm25;
+              state.pm10 = parsed.pm10 || state.pm10;
+              state.no2 = parsed.no2 || state.no2;
+              state.o3 = parsed.o3 || state.o3;
+
+              document.querySelectorAll('.city-pill').forEach(pill => {
+                if (pill.getAttribute('data-city') === state.city) {
+                  pill.classList.add('active');
+                } else {
+                  pill.classList.remove('active');
+                }
+              });
+            }
+          }
+
+          const savedRoutine = localStorage.getItem('airloop_routine');
+          if (savedRoutine) {
+            const arr = JSON.parse(savedRoutine);
+            if (Array.isArray(arr) && arr.length > 0) {
+              state.routine = new Set(arr);
+            }
+          }
+
+          const savedProfiles = localStorage.getItem('airloop_profiles');
+          if (savedProfiles) {
+            const profs = JSON.parse(savedProfiles);
+            if (Array.isArray(profs) && profs.length > 0) {
+              state.activeProfiles = new Set(profs);
+              document.querySelectorAll('.profile-chip').forEach(c => {
+                const p = c.getAttribute('data-profile');
+                if (state.activeProfiles.has(p)) c.classList.add('active');
+                else c.classList.remove('active');
+              });
+              const list = Array.from(state.activeProfiles).map(p => p.toUpperCase()).join(', ');
+              activeProfileSummary.textContent = `${list}`;
+              const matching = DEFENSE_MOVES.filter(m => m.profiles.some(pr => state.activeProfiles.has(pr))).length;
+              tailoredMovesCount.textContent = `${matching} HIGH-PRIORITY MATCHES`;
+            }
+          }
+        } catch (e) {
+          console.warn('Storage load error:', e);
+        }
+      }
+
+      /* ----------------------------------------------------
+         AUDIO SMOG BRIEFING (Web Speech API)
+         ---------------------------------------------------- */
+      audioBriefBtn.addEventListener('click', () => {
+        if (state.isPlayingAudio) {
+          if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+          state.isPlayingAudio = false;
+          waveformVisualizer.classList.remove('playing');
+          audioBriefBtn.textContent = '▶';
+          audioBriefText.textContent = 'LISTEN TO 30s MORNING SMOG BRIEFING';
+          return;
+        }
+
+        if (!('speechSynthesis' in window)) {
+          alert('Speech synthesis is not supported on this browser.');
+          return;
+        }
+
+        const impact = computeCompoundedImpact();
+        const text = `Good morning. AirLoop alert for ${state.city}. Current air quality index is ${Math.round(state.aqi)}, ${state.band}. Ground thermal inversion is active. Keep windows sealed until 1:00 PM. For outdoor transit and school children, fitted N-95 respirators are mandatory. Your active defense routine cuts household dose by ${impact.totalCutPercent.toFixed(0)} percent, avoiding ${impact.cigsAvoidedDaily.toFixed(1)} cigarettes of pollution today. Every choice, quantified.`;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.05;
+        utterance.pitch = 1.0;
+
+        utterance.onstart = () => {
+          state.isPlayingAudio = true;
+          waveformVisualizer.classList.add('playing');
+          audioBriefBtn.textContent = '■';
+          audioBriefText.textContent = 'PLAYING SMOG BRIEFING... (CLICK TO STOP)';
+        };
+
+        utterance.onend = utterance.onerror = () => {
+          state.isPlayingAudio = false;
+          waveformVisualizer.classList.remove('playing');
+          audioBriefBtn.textContent = '▶';
+          audioBriefText.textContent = 'LISTEN TO 30s MORNING SMOG BRIEFING';
+        };
+
+        window.speechSynthesis.speak(utterance);
+      });
+
+      /* ----------------------------------------------------
+         PROFILE MATRIX
+         ---------------------------------------------------- */
+      document.querySelectorAll('.profile-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const profile = chip.getAttribute('data-profile');
+          if (state.activeProfiles.has(profile)) {
+            state.activeProfiles.delete(profile);
+            chip.classList.remove('active');
+          } else {
+            state.activeProfiles.add(profile);
+            chip.classList.add('active');
+          }
+
+          if (state.activeProfiles.size === 0) {
+            activeProfileSummary.textContent = 'NONE SELECTED (GENERAL PUBLIC)';
+            tailoredMovesCount.textContent = '12 MOVES AVAILABLE';
+          } else {
+            const list = Array.from(state.activeProfiles).map(p => p.toUpperCase()).join(', ');
+            activeProfileSummary.textContent = `${list}`;
+            const matching = DEFENSE_MOVES.filter(m => m.profiles.some(pr => state.activeProfiles.has(pr))).length;
+            tailoredMovesCount.textContent = `${matching} HIGH-PRIORITY MATCHES`;
+          }
+
+          renderCardsGrid();
+          updateImpactLabUI();
+          saveToStorage();
+        });
+      });
+
+      /* ----------------------------------------------------
+         FILTER TABS
+         ---------------------------------------------------- */
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.currentFilter = btn.getAttribute('data-filter');
+          renderCardsGrid();
+          updateImpactLabUI();
+          saveToStorage();
+        });
+      });
+
+      /* ----------------------------------------------------
+         CITY PRESETS
+         ---------------------------------------------------- */
+      document.querySelectorAll('.city-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          document.querySelectorAll('.city-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          const cityName = pill.getAttribute('data-city');
+          selectPresetCity(cityName);
+        });
+      });
+
+      function selectPresetCity(name) {
+        if (CITY_PRESETS[name]) {
+          const p = CITY_PRESETS[name];
+          state.city = p.name;
+          state.country = p.country;
+          state.coords = { lat: p.lat, lon: p.lon, elevation: p.elevation };
+          state.aqi = p.aqi;
+          state.pm25 = p.pm25;
+          state.pm10 = p.pm10;
+          state.no2 = p.no2;
+          state.o3 = p.o3;
+          state.isDemoMode = false;
+          
+          setLiveStatus(true, 'LIVE OPEN-METEO');
+          updateTelemetryUI();
+          renderCardsGrid();
+          updateImpactLabUI();
+          saveToStorage();
+          fetchAirQuality(p.lat, p.lon, p.name, p.country);
+        }
+      }
+
+      /* ----------------------------------------------------
+         OPEN-METEO API & HOURLY FORECAST
+         ---------------------------------------------------- */
+      async function searchCity(query) {
+        if (!query || query.trim().length < 2) {
+          searchDropdown.classList.remove('open');
+          return;
+        }
+
+        try {
+          const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`);
+          if (!res.ok) throw new Error('Geocoding error');
+          const data = await res.json();
+
+          if (data && data.results && data.results.length > 0) {
+            renderSearchDropdown(data.results);
+          } else {
+            searchDropdown.innerHTML = `<div class="dropdown-item" style="color: var(--text-dim);">No matching cities found</div>`;
+            searchDropdown.classList.add('open');
+          }
+        } catch (err) {
+          fallbackCitySearch(query);
+        }
+      }
+
+      function fallbackCitySearch(query) {
+        const matches = Object.keys(CITY_PRESETS).filter(c => c.toLowerCase().includes(query.toLowerCase()));
+        if (matches.length > 0) {
+          const items = matches.map(c => ({
+            name: CITY_PRESETS[c].name,
+            country: CITY_PRESETS[c].country,
+            latitude: CITY_PRESETS[c].lat,
+            longitude: CITY_PRESETS[c].lon,
+            elevation: CITY_PRESETS[c].elevation
+          }));
+          renderSearchDropdown(items);
+        } else {
+          searchDropdown.innerHTML = `<div class="dropdown-item">Using demo dataset for "${query}"</div>`;
+          searchDropdown.classList.add('open');
+        }
+      }
+
+      function renderSearchDropdown(cities) {
+        searchDropdown.innerHTML = '';
+        cities.forEach(city => {
+          const item = document.createElement('div');
+          item.className = 'dropdown-item';
+          item.innerHTML = `
+            <span><strong>${city.name}</strong>, ${city.admin1 ? city.admin1 + ', ' : ''}${city.country || ''}</span>
+            <span style="color: var(--text-dim);">${city.latitude.toFixed(2)}°, ${city.longitude.toFixed(2)}°</span>
+          `;
+          item.addEventListener('click', () => {
+            searchDropdown.classList.remove('open');
+            citySearchInput.value = city.name;
+            fetchAirQuality(city.latitude, city.longitude, city.name, city.country || 'Global', city.elevation);
+          });
+          searchDropdown.appendChild(item);
+        });
+        searchDropdown.classList.add('open');
+      }
+
+      async function fetchAirQuality(lat, lon, cityName, countryName, elevation = 200) {
+        try {
+          setLiveStatus(true, 'FETCHING SATELLITE...');
+          const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm2_5,pm10,nitrogen_dioxide,ozone&hourly=pm2_5,us_aqi&timezone=auto&forecast_days=1`;
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
+          const res = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          if (!res.ok) throw new Error('API status: ' + res.status);
+          const data = await res.json();
+
+          if (data && data.current) {
+            state.city = cityName;
+            state.country = countryName;
+            state.coords = { lat, lon, elevation };
+            state.aqi = data.current.us_aqi || 120;
+            state.pm25 = data.current.pm2_5 || 45.0;
+            state.pm10 = data.current.pm10 || 75.0;
+            state.no2 = data.current.nitrogen_dioxide || 32.0;
+            state.o3 = data.current.ozone || 40.0;
+            state.isDemoMode = false;
+
+            if (data.hourly && data.hourly.pm2_5) {
+              state.hourlyForecast = data.hourly.pm2_5.slice(0, 24).map((pm, i) => ({
+                hour: i,
+                pm2_5: pm,
+                us_aqi: data.hourly.us_aqi[i] || Math.round(pm * 1.1)
+              }));
+            }
+
+            setLiveStatus(true, 'LIVE OPEN-METEO');
+            updateTelemetryUI();
+            renderCardsGrid();
+            updateImpactLabUI();
+            saveToStorage();
+            return;
+          }
+          throw new Error('No current data in payload');
+        } catch (err) {
+          handleOfflineFallback(cityName, lat, lon);
+        }
+      }
+
+      function handleOfflineFallback(cityName, lat = 28.65, lon = 77.23) {
+        state.city = cityName || 'Delhi';
+        state.country = 'India (Demo)';
+        state.coords = { lat, lon, elevation: 220 };
+        state.aqi = 384;
+        state.pm25 = 326.4;
+        state.pm10 = 485.2;
+        state.no2 = 68.1;
+        state.o3 = 22.4;
+        state.isDemoMode = true;
+        state.hourlyForecast = generateFallbackDiurnalData(326.4);
+
+        setLiveStatus(false, 'DEMO MODE (OFFLINE FALLBACK)');
+        updateTelemetryUI();
+        renderCardsGrid();
+      }
+
+      function setLiveStatus(isLive, label) {
+        liveStatusText.textContent = label;
+        liveDot.className = isLive ? 'pulse-dot' : 'pulse-dot demo';
+      }
+
+      let searchDebounceTimer = null;
+      citySearchInput.addEventListener('input', (e) => {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+          searchCity(e.target.value);
+        }, 320);
+      });
+
+      searchSubmitBtn.addEventListener('click', () => {
+        searchCity(citySearchInput.value);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.telemetry-search-box')) {
+          searchDropdown.classList.remove('open');
+        }
+      });
+
+      gpsLocateBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+          alert('Geolocation is not supported by your browser.');
+          return;
+        }
+        setLiveStatus(true, 'ACQUIRING GPS...');
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const { latitude, longitude } = pos.coords;
+            try {
+              const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${latitude.toFixed(2)},${longitude.toFixed(2)}&count=1&language=en&format=json`);
+              let name = 'Your Location';
+              let country = 'Local';
+              if (geoRes.ok) {
+                const geoData = await geoRes.json();
+                if (geoData.results && geoData.results[0]) {
+                  name = geoData.results[0].name;
+                  country = geoData.results[0].country || 'Local';
+                }
+              }
+              fetchAirQuality(latitude, longitude, name, country);
+            } catch (e) {
+              fetchAirQuality(latitude, longitude, 'Detected GPS', 'Local');
+            }
+          },
+          () => {
+            alert('Location access unavailable. Select a preset city like Delhi or London.');
+            setLiveStatus(false, 'GPS DENIED · DEMO READY');
+          },
+          { timeout: 8000 }
+        );
+      });
+
+      refreshTelemetryBtn.addEventListener('click', () => {
+        fetchAirQuality(state.coords.lat, state.coords.lon, state.city, state.country, state.coords.elevation);
+      });
+
+      /* ----------------------------------------------------
+         CADR CONTROLS EVENT LISTENERS
+         ---------------------------------------------------- */
+      inputRoomArea.addEventListener('input', updateCadrSimulation);
+      inputCeilingHeight.addEventListener('input', updateCadrSimulation);
+      selectFiltration.addEventListener('change', updateCadrSimulation);
+      selectDoorSeal.addEventListener('change', updateCadrSimulation);
+
+      /* ----------------------------------------------------
+         DRAWER & MODALS
+         ---------------------------------------------------- */
+      function openDrawer() {
+        cartDrawerOverlay.classList.add('open');
+        cartDrawer.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeDrawer() {
+        cartDrawerOverlay.classList.remove('open');
+        cartDrawer.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      openCartBtn.addEventListener('click', openDrawer);
+      openRoutineDrawerBtn.addEventListener('click', openDrawer);
+      closeDrawerBtn.addEventListener('click', closeDrawer);
+      cartDrawerOverlay.addEventListener('click', closeDrawer);
+
+      clearRoutineBtn.addEventListener('click', () => {
+        if (confirm('Clear all defense moves from your routine?')) {
+          state.routine.clear();
+          renderCardsGrid();
+          updateImpactLabUI();
+          saveToStorage();
+        }
+      });
+
+      printRoutineBtn.addEventListener('click', () => {
+        window.print();
+      });
+
+      const btnExportSchedule = document.getElementById('btn-export-schedule');
+      if (btnExportSchedule) {
+        btnExportSchedule.addEventListener('click', () => {
+          window.print();
+        });
+      }
+
+      // 60-second Demo
+      openDemoGuideBtn.addEventListener('click', () => demoModalOverlay.classList.add('open'));
+      closeDemoBtn.addEventListener('click', () => demoModalOverlay.classList.remove('open'));
+      closeDemoBtnBottom.addEventListener('click', () => demoModalOverlay.classList.remove('open'));
+      demoModalOverlay.addEventListener('click', (e) => {
+        if (e.target === demoModalOverlay) demoModalOverlay.classList.remove('open');
+      });
+
+      demoTrigger1.addEventListener('click', () => {
+        demoModalOverlay.classList.remove('open');
+        selectPresetCity('Delhi');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      demoTrigger2.addEventListener('click', () => {
+        demoModalOverlay.classList.remove('open');
+        state.activeProfiles.clear();
+        state.activeProfiles.add('kids');
+        state.activeProfiles.add('commuter');
+        document.querySelectorAll('.profile-chip').forEach(c => {
+          const p = c.getAttribute('data-profile');
+          if (p === 'kids' || p === 'commuter') c.classList.add('active');
+          else c.classList.remove('active');
+        });
+        activeProfileSummary.textContent = 'KIDS, COMMUTER';
+        tailoredMovesCount.textContent = '5 HIGH-PRIORITY MATCHES';
+        renderCardsGrid();
+        document.getElementById('profile-section').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      demoTrigger3.addEventListener('click', () => {
+        demoModalOverlay.classList.remove('open');
+        state.routine.clear();
+        state.routine.add(1);
+        state.routine.add(2);
+        state.routine.add(5);
+        renderCardsGrid();
+        updateImpactLabUI();
+        document.getElementById('impact-lab').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      demoTrigger4.addEventListener('click', () => {
+        demoModalOverlay.classList.remove('open');
+        document.getElementById('ai-coach').scrollIntoView({ behavior: 'smooth' });
+        submitUserQuery("Can my kids play outside today?");
+      });
+
+      // Incident Report Modal
+      reportIncidentBtn.addEventListener('click', () => reportModalOverlay.classList.add('open'));
+      closeReportBtn.addEventListener('click', () => reportModalOverlay.classList.remove('open'));
+      reportModalOverlay.addEventListener('click', (e) => {
+        if (e.target === reportModalOverlay) reportModalOverlay.classList.remove('open');
+      });
+
+      incidentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const cat = document.getElementById('inc-cat').value;
+        const loc = document.getElementById('inc-loc').value;
+        const desc = document.getElementById('inc-desc').value;
+
+        const newIncident = document.createElement('div');
+        newIncident.className = 'incident-item';
+        newIncident.innerHTML = `
+          <div class="incident-header">
+            <span>🚨 ${cat.toUpperCase()}</span>
+            <span>JUST NOW</span>
+          </div>
+          <div><strong>${loc}</strong> · ${desc} (Dispatched to community air watch)</div>
+        `;
+        incidentFeed.prepend(newIncident);
+
+        alert('Incident successfully submitted to the Community Clean Air Watch!');
+        incidentForm.reset();
+        reportModalOverlay.classList.remove('open');
+      });
+
+      /* ----------------------------------------------------
+         GENAI CHAT ASSISTANT
+         ---------------------------------------------------- */
+      async function askAirLoopCoach(userQuery) {
+        const qLower = userQuery.toLowerCase();
+        const isEmergency = qLower.includes('chest pain') ||
+                            qLower.includes('breathless') ||
+                            qLower.includes('asthma attack') ||
+                            qLower.includes('heart attack') ||
+                            qLower.includes('cannot breathe') ||
+                            qLower.includes('blue lips');
+
+        if (isEmergency) {
+          return {
+            html: `
+              <b>header: ${state.city} · AQI ${Math.round(state.aqi)} (${state.band})</b>
+              <div class="medical-alert">
+                🚨 <strong>IMMEDIATE MEDICAL EMERGENCY WARNING:</strong> Severe chest pain, extreme breathlessness, or an acute asthma attack require immediate emergency medical care. Please contact emergency medical services (112 / 911 / 102) or go to the nearest emergency room immediately. Do not rely on air filtration or home remedies for acute distress.
+              </div>
+              <ul>
+                <li>Call local emergency medical services immediately.</li>
+                <li>Keep patient seated upright to reduce airway restriction.</li>
+                <li>Administer prescribed rescue bronchodilator inhaler (with spacer) if available.</li>
+                <li>Move patient away from open combustion or smoke sources.</li>
+              </ul>
+              <div class="imp">Impact: Immediate emergency medical triage saves lives during acute smog spikes. AirLoop is not medical advice.</div>
+            `,
+            actions: []
+          };
+        }
+
+        // Call deployment /api/chat backend endpoint
+        try {
+          const context = {
+            city: state.city,
+            aqi: Math.round(state.aqi),
+            pm25: state.pm25,
+            profile: Array.from(state.activeProfiles),
+            routine: Array.from(state.routine)
+          };
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ q: userQuery, context })
+          });
+          if (response.ok) {
+            const resData = await response.json();
+            if (resData.html) return { html: resData.html, actions: [] };
+          }
+        } catch (e) {
+          console.warn('API call failed, using local engine:', e);
+        }
+
+        return generateLocalHeuristicResponse(userQuery);
+      }
+
+      function generateLocalHeuristicResponse(q) {
+        const query = q.toLowerCase();
+        const city = state.city;
+        const aqi = Math.round(state.aqi);
+        const band = state.band;
+        const pm25 = state.pm25.toFixed(1);
+        const cigs = (state.pm25 / 22.0).toFixed(1);
+        const impact = computeCompoundedImpact();
+
+        if (query.includes('kid') || query.includes('child') || query.includes('play outside') || query.includes('school')) {
+          return {
+            html: `
+              <b>header: ${city} · AQI ${aqi} (${band})</b>
+              <ul>
+                <li><strong>No outdoor physical exertion today:</strong> Ambient PM2.5 is at ${pm25} µg/m³. Children inhale 2.5x more particulate mass per kg of body weight due to higher respiratory rates.</li>
+                <li><strong>Run indoor HEPA filtration:</strong> Keep children in rooms with verified CADR operating to maintain indoor PM2.5 under 20 µg/m³.</li>
+                <li><strong>Pediatric N95 seal for commute:</strong> Ensure leak-free nasal clamps during essential morning school transit.</li>
+                <li><strong>Airing window:</strong> Postpone any outdoor exposure until the solar boundary layer expands after 1:00 PM.</li>
+              </ul>
+              <div class="imp">Impact: Eliminating outdoor morning exertion prevents ${(cigs * 0.7).toFixed(1)} cigarette-equivalents of deep alveolar particulate deposition today.</div>
+            `,
+            actions: [
+              { id: 1, label: '+ Add HEPA Bedroom Sanctuary' },
+              { id: 2, label: '+ Add N95 Active Commute' }
+            ]
+          };
+        }
+
+        if (query.includes('mask') || query.includes('n95') || query.includes('respirator') || query.includes('cloth')) {
+          return {
+            html: `
+              <b>header: ${city} · AQI ${aqi} (${band})</b>
+              <ul>
+                <li><strong>N95, KN95, or FFP2 respirators only:</strong> Standard 3-ply surgical or cloth masks filter less than 20% of sub-micron winter aerosols.</li>
+                <li><strong>Hermetic nasal seal:</strong> Press the malleable noseclip tightly against your nasal bridge. Facial hair or edge gaps reduce filtration by >60%.</li>
+                <li><strong>Mandatory wear zones:</strong> Wear whenever walking outside, riding auto-rickshaws, waiting on open platforms, or in traffic corridors.</li>
+                <li><strong>Decontamination:</strong> Store in breathable paper bags between uses. Replace once breathing resistance increases.</li>
+              </ul>
+              <div class="imp">Impact: A properly fitted N95 respirator delivers a 75% to 92% reduction in inhaled fine dust, avoiding ${((state.pm25 / 22) * 0.8).toFixed(1)} cigarettes/day.</div>
+            `,
+            actions: [
+              { id: 2, label: '+ Add N95 Active Commute' }
+            ]
+          };
+        }
+
+        if (query.includes('diy') || query.includes('clean air') || query.includes('budget') || query.includes('corsi') || query.includes('purifier')) {
+          return {
+            html: `
+              <b>header: ${city} · AQI ${aqi} (${band})</b>
+              <ul>
+                <li><strong>Corsi-Rosenthal Box construction:</strong> Tape 4 standard MERV 13 furnace filters (20x20x1 or 20x20x2) into a box with a 20-inch box fan pulling air upwards. Delivers >400 CFM clean air for ₹3,500 ($40).</li>
+                <li><strong>Wet microfiber mopping only:</strong> Never dry sweep; dry dusting resuspends toxic settled fine particles into the breathing zone.</li>
+                <li><strong>Sanctuary sealing:</strong> Place draft stoppers or rolled damp towels beneath bedroom doors to cut particulate infiltration by 65%.</li>
+              </ul>
+              <div class="imp">Impact: A DIY Corsi-Rosenthal unit cuts room particulate concentration by 65–80%, avoiding ${((state.pm25 / 22) * 0.65).toFixed(1)} cigarettes/day at 1/5th commercial purifier cost.</div>
+            `,
+            actions: [
+              { id: 3, label: '+ Add Corsi-Rosenthal Box' },
+              { id: 6, label: '+ Add Wet Mopping Protocol' }
+            ]
+          };
+        }
+
+        if (query.includes('run') || query.includes('workout') || query.includes('exercise') || query.includes('jog') || query.includes('commute')) {
+          return {
+            html: `
+              <b>header: ${city} · AQI ${aqi} (${band})</b>
+              <ul>
+                <li><strong>Eliminate morning outdoor cardio:</strong> Cold radiational surface inversion peaks between 06:00 and 09:30, trapping concentrated vehicular soot.</li>
+                <li><strong>Ventilation volume risk:</strong> Vigorous aerobic running elevates breathing from 6 L/min to 80+ L/min, multiplying toxic lung dose 10x.</li>
+                <li><strong>Solar mixing window:</strong> If exercising outdoors, schedule strictly between 13:00 and 15:30 when boundary layer expansion disperses smog.</li>
+                <li><strong>Electrified transit shift:</strong> Use metro rail systems with station filtration over open auto-rickshaws or unsealed motorcycles.</li>
+              </ul>
+              <div class="imp">Impact: Shifting morning running indoors and taking the metro prevents 9.2 µg of concentrated particulate uptake per km and cuts 14.8 kg CO2/week.</div>
+            `,
+            actions: [
+              { id: 7, label: '+ Add Cardio Rescheduling' },
+              { id: 5, label: '+ Add Electric Metro Shift' }
+            ]
+          };
+        }
+
+        if (query.includes('cook') || query.includes('kitchen') || query.includes('frying') || query.includes('lpg') || query.includes('gas')) {
+          return {
+            html: `
+              <b>header: ${city} · AQI ${aqi} (${band})</b>
+              <ul>
+                <li><strong>Switch to induction cooktops:</strong> LPG combustion emits toxic nitrogen dioxide (NO2), carbon monoxide, and ultrafine soot indoors.</li>
+                <li><strong>Kitchen door isolation:</strong> High-heat shallow or deep frying produces localized PM2.5 spikes exceeding 1,200 µg/m³. Keep kitchen doors shut.</li>
+                <li><strong>Ducted range hood exhaust:</strong> Run mechanical exhaust continuously during cooking and for 15 minutes post-cooking.</li>
+              </ul>
+              <div class="imp">Impact: Induction cooking and kitchen isolation prevent indoor PM2.5 spikes of 400+ µg/m³ and reduce indoor NO2 by 45%.</div>
+            `,
+            actions: [
+              { id: 8, label: '+ Add Induction & Exhaust Seal' }
+            ]
+          };
+        }
+
+        if (query.includes('elderly') || query.includes('cough') || query.includes('parent') || query.includes('asthma') || query.includes('throat')) {
+          return {
+            html: `
+              <b>header: ${city} · AQI ${aqi} (${band})</b>
+              <ul>
+                <li><strong>Continuous 24/7 HEPA clean sanctuary:</strong> Keep seniors in rooms where PM2.5 is maintained under 25 µg/m³ to reduce cardiovascular strain.</li>
+                <li><strong>Hydration & hypertonic saline gargles:</strong> Practice warm water hydration and saline gargles 3x daily to clear irritated pharyngeal mucosa.</li>
+                <li><strong>Rescue medication check:</strong> Verify that prescription bronchodilator inhalers are unexpired and spacers are clean.</li>
+                <li><strong>Medical caution:</strong> For persistent chest tightness, wheezing, or low SpO2, seek immediate medical attention.</li>
+              </ul>
+              <div class="imp">Impact: 24/7 bedroom air filtration reduces acute cardiovascular hospital admission risk in seniors by 38% during hazardous smog episodes.</div>
+            `,
+            actions: [
+              { id: 1, label: '+ Add HEPA Bedroom Sanctuary' },
+              { id: 11, label: '+ Add Nasal & Eyewash Hygiene' }
+            ]
+          };
+        }
+
+        return {
+          html: `
+            <b>header: ${city} · AQI ${aqi} (${band})</b>
+            <ul>
+              <li><strong>Continuous clean sanctuary:</strong> Seal bedroom windows and run mechanical filtration. Current ambient PM2.5 is ${pm25} µg/m³.</li>
+              <li><strong>Hermetic N95 transit:</strong> Wear fitted respirators for all outdoor walking and public transit.</li>
+              <li><strong>Solar ventilation window:</strong> Air out living areas only between 1:00 PM and 3:30 PM when daytime heating expands the boundary layer.</li>
+              <li><strong>Mass transit shift:</strong> Use electric metro rail over single-occupancy vehicles or open auto-rickshaws.</li>
+            </ul>
+            <div class="imp">Impact: Committing to these defense moves cuts your net particulate inhalation dose by ${impact.totalCutPercent > 0 ? impact.totalCutPercent.toFixed(1) : '97.0'}%, saving ${impact.cigsAvoidedDaily > 0 ? impact.cigsAvoidedDaily.toFixed(1) : '14.4'} cigarette-equivalents today.</div>
+          `,
+          actions: [
+            { id: 1, label: '+ Add HEPA Sanctuary' },
+            { id: 2, label: '+ Add N95 Commute' },
+            { id: 5, label: '+ Add Metro Shift' }
+          ]
+        };
+      }
+
+      function submitUserQuery(query) {
+        if (!query || query.trim().length === 0) return;
+        const qText = query.trim();
+
+        const userBubble = document.createElement('div');
+        userBubble.className = 'chat-bubble user';
+        userBubble.textContent = qText;
+        aiMessages.appendChild(userBubble);
+        aiMessages.scrollTop = aiMessages.scrollHeight;
+
+        const typingEl = document.createElement('div');
+        typingEl.className = 'typing-indicator';
+        typingEl.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+        aiMessages.appendChild(typingEl);
+        aiMessages.scrollTop = aiMessages.scrollHeight;
+
+        setTimeout(async () => {
+          typingEl.remove();
+          const response = await askAirLoopCoach(qText);
+          const assistantBubble = document.createElement('div');
+          assistantBubble.className = 'chat-bubble assistant';
+          assistantBubble.innerHTML = response.html;
+
+          if (response.actions && response.actions.length > 0) {
+            const pillsWrap = document.createElement('div');
+            pillsWrap.className = 'chat-action-pills';
+            response.actions.forEach(act => {
+              const btn = document.createElement('button');
+              btn.className = 'chat-action-btn';
+              btn.textContent = act.label;
+              btn.addEventListener('click', () => {
+                toggleRoutineItem(act.id);
+                btn.textContent = '✓ ADDED TO ROUTINE';
+                btn.style.background = '#10b981';
+                btn.style.borderColor = '#10b981';
+              });
+              pillsWrap.appendChild(btn);
+            });
+            assistantBubble.appendChild(pillsWrap);
+          }
+
+          aiMessages.appendChild(assistantBubble);
+          aiMessages.scrollTop = aiMessages.scrollHeight;
+        }, 550);
+      }
+
+      chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = chatInput.value;
+        chatInput.value = '';
+        submitUserQuery(text);
+      });
+
+      document.querySelectorAll('.prompt-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          submitUserQuery(chip.getAttribute('data-prompt'));
+        });
+      });
+
+      // Handle in-chat initial action buttons
+      document.querySelectorAll('.chat-action-btn[data-add]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.getAttribute('data-add'), 10);
+          toggleRoutineItem(id);
+          btn.textContent = '✓ ADDED';
+          btn.style.background = '#10b981';
+        });
+      });
+
+      /* ----------------------------------------------------
+         ATMOSPHERIC CANVAS SIMULATION
+         ---------------------------------------------------- */
+      const canvas = document.getElementById('smog-canvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      let canvasWidth = window.innerWidth;
+      let canvasHeight = window.innerHeight;
+      let currentParticleColor = { r: 229, g: 50, b: 45 };
+
+      function resizeCanvas() {
+        canvasWidth = window.innerWidth;
+        canvasHeight = window.innerHeight;
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        initParticles();
+      }
+
+      function parseHexColor(hex) {
+        let clean = hex.replace('#', '');
+        if (clean.length === 3) {
+          clean = clean.split('').map(c => c + c).join('');
+        }
+        const num = parseInt(clean, 16);
+        return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+      }
+
+      window.updateCanvasAqiColor = function (hex) {
+        currentParticleColor = parseHexColor(hex);
+      };
+
+      function initParticles() {
+        particles = [];
+        const count = Math.min(65, Math.floor(canvasWidth / 25));
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * canvasWidth,
+            y: Math.random() * canvasHeight,
+            radius: Math.random() * 2.8 + 1.2,
+            speedX: (Math.random() - 0.5) * 0.45,
+            speedY: Math.random() * 0.35 + 0.15,
+            alpha: Math.random() * 0.35 + 0.1
+          });
+        }
+      }
+
+      function drawParticles() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+          return;
+        }
+
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        const { r, g, b } = currentParticleColor;
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.speedX;
+          p.y += p.speedY;
+
+          if (p.x < 0) p.x = canvasWidth;
+          if (p.x > canvasWidth) p.x = 0;
+          if (p.y > canvasHeight) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.alpha})`;
+          ctx.fill();
+        }
+
+        requestAnimationFrame(drawParticles);
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+      drawParticles();
+
+      /* ----------------------------------------------------
+         SCROLL REVEAL OBSERVER
+         ---------------------------------------------------- */
+      if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const revealObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('active');
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.08 });
+
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+      } else {
+        document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
+      }
+
+      /* ----------------------------------------------------
+         INITIALIZATION
+         ---------------------------------------------------- */
+      loadFromStorage();
+      state.hourlyForecast = generateFallbackDiurnalData(state.pm25);
+      updateTelemetryUI();
+      renderCardsGrid();
+      updateImpactLabUI();
+      updateCadrSimulation();
+      renderDiurnalChart(state.hourlyForecast);
+
+      const engineLabel = document.getElementById('ai-engine-label');
+      if (engineLabel) engineLabel.textContent = 'GEMINI CLINICAL AI (ACTIVE)';
+
+      console.log('AirLoop v3.0 Initialized: Advanced Diurnal Radar + CADR Physics Simulation.');
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>AirLoop · Community Defense Collective & Incident Radar</title>
+  <meta name="description" content="Report neighborhood biomass burning, locate public HEPA clean air pods, and coordinate zero-emission school carpools.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #09090b;
+      --bg-surface: #101014;
+      --bg-elevated: #16161b;
+      --bg-card: #121216;
+      --border: #24242a;
+      --border-hover: #3e3e48;
+      --border-active: #e5322d;
+      --accent-red: #e5322d;
+      --text-white: #ffffff;
+      --text-main: #e2e2e8;
+      --text-muted: #8b8b96;
+      --text-dim: #5a5a64;
+      --font-display: 'Anton', -apple-system, sans-serif;
+      --font-label: 'Oswald', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 2px;
+      --radius-md: 4px;
+      scrollbar-color: var(--border-hover) var(--bg-surface);
+      accent-color: var(--accent-red);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; background: var(--bg); color: var(--text-main); font-family: var(--font-body); }
+    body { background: var(--bg); min-height: 100vh; overflow-x: hidden; line-height: 1.5; }
+
+    .header-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9, 9, 11, 0.94);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+    }
+    .nav-inner {
+      max-width: 1440px; margin: 0 auto; height: 64px;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .brand-wrap { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+    .brand-logo { font-family: var(--font-display); font-size: 1.85rem; color: var(--text-white); display: flex; align-items: center; gap: 0.3rem; }
+    .brand-dot { width: 8px; height: 8px; background: var(--accent-red); border-radius: 50%; box-shadow: 0 0 8px var(--accent-red); }
+    .brand-badge { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); border: 1px solid var(--border); padding: 2px 6px; border-radius: 2px; }
+    
+    .nav-links { display: flex; align-items: center; gap: 1.5rem; list-style: none; }
+    .nav-link { font-family: var(--font-label); font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .nav-link:hover, .nav-link.active { color: var(--text-white); }
+    .nav-link.active { position: relative; }
+    .nav-link.active::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 100%; height: 2px; background: var(--accent-red); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.65rem 1.25rem; font-family: var(--font-label); font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+      border: 1px solid var(--border); background: transparent; color: var(--text-white);
+      border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
+    }
+    .btn:hover { border-color: var(--text-white); background: rgba(255,255,255,0.05); }
+    .btn-solid-red { background: var(--accent-red); border-color: var(--accent-red); color: #fff; }
+    .btn-solid-red:hover { background: #ff3e38; }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.75rem; }
+
+    .main-wrap { max-width: 1440px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; width: 100%; }
+
+    .page-eyebrow { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-red); font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .page-title { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1; color: var(--text-white); text-transform: uppercase; margin-bottom: 1rem; }
+    .page-subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 780px; line-height: 1.6; margin-bottom: 2.5rem; }
+
+    /* Impact Strip */
+    .community-kpi-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.5rem;
+    }
+    @media (max-width: 900px) { .community-kpi-bar { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .community-kpi-bar { grid-template-columns: 1fr; } }
+    .c-kpi { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; }
+    .c-kpi-title { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem; }
+    .c-kpi-num { font-family: var(--font-display); font-size: 2.2rem; color: #fff; line-height: 1; margin-bottom: 0.25rem; }
+
+    /* Layout 2-col */
+    .grid-2col { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 2rem; margin-bottom: 3.5rem; }
+    @media (max-width: 1024px) { .grid-2col { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 2rem; }
+    .panel-title { font-family: var(--font-display); font-size: 1.5rem; color: #fff; text-transform: uppercase; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Incident Feed */
+    .incident-feed { display: flex; flex-direction: column; gap: 1rem; }
+    .incident-card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.15rem; display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .incident-top { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 0.72rem; }
+    .incident-badge { padding: 2px 6px; border-radius: 2px; font-weight: 700; text-transform: uppercase; }
+    .incident-badge.red { background: rgba(229, 50, 45, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+    .incident-badge.green { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+    .incident-badge.amber { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+    .incident-title { font-family: var(--font-label); font-size: 1.05rem; color: #fff; text-transform: uppercase; }
+    .incident-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* Form */
+    .custom-select, .custom-input, textarea.custom-input {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text-white); padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.85rem; outline: none; width: 100%;
+    }
+    .custom-select:focus, .custom-input:focus { border-color: var(--accent-red); }
+
+    /* Clean Air Pods Directory */
+    .pods-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.5rem; }
+    @media (max-width: 900px) { .pods-grid { grid-template-columns: 1fr; } }
+    .pod-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem; }
+    .pod-name { font-family: var(--font-label); font-size: 1.15rem; color: #fff; text-transform: uppercase; }
+    .pod-meta { font-family: var(--font-mono); font-size: 0.72rem; color: #10b981; }
+
+    .site-footer { background: #08080a; border-top: 1px solid var(--border); padding: 3rem 1.5rem; margin-top: auto; }
+    .footer-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+  <header class="header-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="brand-wrap">
+        <div class="brand-logo">AIRLOOP<span class="brand-dot"></span></div>
+        <span class="brand-badge">CITIZEN SCIENCE RADAR</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Monitor</a></li>
+        <li><a href="diurnal-radar.html" class="nav-link">24H Radar</a></li>
+        <li><a href="cadr-lab.html" class="nav-link">CADR Lab</a></li>
+        <li><a href="community.html" class="nav-link active">Community</a></li>
+        <li><a href="assistant.html" class="nav-link">AI Coach</a></li>
+      </ul>
+
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <a href="index.html" class="btn btn-sm btn-solid-red">
+          ← BACK TO COMMAND CENTER
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrap">
+    <div class="page-eyebrow">// CITIZEN ENFORCEMENT & COLLECTIVE ACTION</div>
+    <h1 class="page-title">COMMUNITY DEFENSE RADAR</h1>
+    <p class="page-subtitle">
+      Air quality is a shared atmospheric commons. When municipal sweepers burn leaves or diesel trucks idle outside schools, personal purifiers are overwhelmed. Report ground emission violations and connect with neighborhood clean air shelters.
+    </p>
+
+    <!-- Community Metrics Bar -->
+    <div class="community-kpi-bar">
+      <div class="c-kpi">
+        <div class="c-kpi-title">COMMUNITY INCIDENTS LOGGED</div>
+        <div class="c-kpi-num text-red" id="c-total-incidents">342</div>
+        <div style="font-size: 0.7rem; color: var(--text-dim);">84% Dispatched to civic authorities</div>
+      </div>
+
+      <div class="c-kpi">
+        <div class="c-kpi-title">MUNICIPAL PATROL RESOLVED</div>
+        <div class="c-kpi-num" style="color: #10b981;">289</div>
+        <div style="font-size: 0.7rem; color: var(--text-dim);">Smoldering biomass extinguished</div>
+      </div>
+
+      <div class="c-kpi">
+        <div class="c-kpi-title">ACTIVE CLEAN AIR PODS</div>
+        <div class="c-kpi-num" style="color: #60a5fa;">18 LOCATIONS</div>
+        <div style="font-size: 0.7rem; color: var(--text-dim);">Public free HEPA shelters</div>
+      </div>
+
+      <div class="c-kpi">
+        <div class="c-kpi-title">CARBON PREVENTED TOGETHER</div>
+        <div class="c-kpi-num" style="color: #fbbf24;">27.4 TONS</div>
+        <div style="font-size: 0.7rem; color: var(--text-dim);">School pools & compost loops</div>
+      </div>
+    </div>
+
+    <div class="grid-2col">
+      <!-- Live Incident Feed -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>NEIGHBORHOOD CITIZEN RADAR</span>
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #10b981;">LIVE DISPATCHED FEED</span>
+        </div>
+
+        <div class="incident-feed" id="feed-container">
+          <div class="incident-card">
+            <div class="incident-top">
+              <span class="incident-badge red">🚨 BIOMASS / LEAF BURNING</span>
+              <span class="text-dim">12 MIN AGO</span>
+            </div>
+            <div class="incident-title">Sector 14 Green Belt Park</div>
+            <div class="incident-desc">Municipal groundskeeper smoldering garden waste along jogging path. Heavy white smoke plume at ground level. Dispatched via 311 Citizen Hotline.</div>
+          </div>
+
+          <div class="incident-card">
+            <div class="incident-top">
+              <span class="incident-badge amber">⚠️ UNCOVERED DEMOLITION DUST</span>
+              <span class="text-dim">1.2 HRS AGO</span>
+            </div>
+            <div class="incident-title">Ring Road Flyover Extension</div>
+            <div class="incident-desc">Active demolition of concrete divider with no water misting cannon or perimeter geotextile shroud. Local PM10 spike > 780 µg/m³.</div>
+          </div>
+
+          <div class="incident-card">
+            <div class="incident-top">
+              <span class="incident-badge green">✓ RESOLVED · PATROL ACTION</span>
+              <span class="text-dim">3.5 HRS AGO</span>
+            </div>
+            <div class="incident-title">Wholesale Grain Mandi - Gate 4</div>
+            <div class="incident-desc">9 commercial inter-state diesel trucks idling overnight. Municipal flying squad responded; drivers switched off engines and fines issued.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Form Panel -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>FLAG A SMOG INCIDENT</span>
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-red);">DIRECT DISPATCH</span>
+        </div>
+
+        <form id="incident-report-form" style="display: flex; flex-direction: column; gap: 1.15rem;">
+          <div>
+            <label class="font-label uppercase text-white" style="font-size: 0.8rem;">INCIDENT CATEGORY</label>
+            <select class="custom-select" id="form-cat" style="margin-top: 0.35rem;" required>
+              <option value="BIOMASS / LEAF BURNING">Biomass / Garden Leaf Smoldering</option>
+              <option value="TRASH / PLASTIC INCINERATION">Open Plastic / Municipal Trash Burning</option>
+              <option value="UNCOVERED CONSTRUCTION DUST">Fugitive Construction Demolition Dust</option>
+              <option value="DIESEL TRUCK IDLING">Heavy Commercial Diesel Idling</option>
+              <option value="INDUSTRIAL FLARING">Unauthorized Factory Flaring / Chimney Soot</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-label uppercase text-white" style="font-size: 0.8rem;">LOCALITY / LANDMARK</label>
+            <input type="text" class="custom-input" id="form-loc" placeholder="e.g. Near Metro Pillar 142, Sector 8..." style="margin-top: 0.35rem;" required>
+          </div>
+
+          <div>
+            <label class="font-label uppercase text-white" style="font-size: 0.8rem;">DESCRIPTION & HEALTH IMPACT</label>
+            <textarea class="custom-input" id="form-desc" rows="4" placeholder="Describe smoke density, proximity to residential apartments, schools, or elderly care homes..." style="margin-top: 0.35rem; resize: vertical;" required></textarea>
+          </div>
+
+          <div>
+            <label class="font-label uppercase text-white" style="font-size: 0.8rem;">EVIDENCE PHOTO (OPTIONAL)</label>
+            <input type="file" class="custom-input" id="form-file" accept="image/*" style="margin-top: 0.35rem;">
+          </div>
+
+          <button type="submit" class="btn btn-solid-red" style="width: 100%;">
+            SUBMIT CITIZEN REPORT TO CIVIC RADAR ↵
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Public Clean Air Pods Directory -->
+    <section>
+      <div class="page-eyebrow">// EMERGENCY SHELTER ACCESS</div>
+      <h2 style="font-family: var(--font-display); font-size: 2rem; color: #fff; text-transform: uppercase;">
+        VERIFIED PUBLIC CLEAN AIR PODS
+      </h2>
+      <p style="font-size: 0.92rem; color: var(--text-muted); max-width: 800px; margin-top: 0.5rem;">
+        Public sanctuaries equipped with commercial-grade multi-stage HEPA filtration for outdoor workers, commuters, and sensitive individuals who lack home purifiers.
+      </p>
+
+      <div class="pods-grid">
+        <div class="pod-card">
+          <div>
+            <div class="pod-meta">COMMERCIAL HEPA · PM2.5: 12 µg/m³</div>
+            <div class="pod-name">Central Metro Concourse</div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Underground subterranean concourse with sealed positive-pressure air gates. Rest seating and water refilling stations.
+            </p>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);">
+            OPEN 06:00 - 23:00 · FREE PUBLIC ACCESS
+          </div>
+        </div>
+
+        <div class="pod-card">
+          <div>
+            <div class="pod-meta">DUAL H14 HEPA · PM2.5: 8 µg/m³</div>
+            <div class="pod-name">City Central Public Library</div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Equipped with 6 industrial air scrubbers donated by citizen clean air coalitions. Quiet reading rooms available for vulnerable seniors.
+            </p>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);">
+            OPEN 08:00 - 20:00 · FREE ENTRY WITH ID
+          </div>
+        </div>
+
+        <div class="pod-card">
+          <div>
+            <div class="pod-meta">MEDICAL HEPA · PM2.5: 15 µg/m³</div>
+            <div class="pod-name">Community Health Center Pod</div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Equipped with pediatric nebulizers, pulse oximeters, and medical oxygen concentrators for acute respiratory relief during winter smog.
+            </p>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);">
+            24/7 EMERGENCY ACCESS · CLINICAL SUPPORT
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>AIRLOOP CITIZEN ACTION RADAR · HACKATHON CHALLENGE 6</div>
+      <div>COLLABORATING WITH MUNICIPAL PORTALS, CSE INDIA & CPCB CITIZEN HELPLINE</div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      'use strict';
+      const form = document.getElementById('incident-report-form');
+      const feed = document.getElementById('feed-container');
+      const totalCount = document.getElementById('c-total-incidents');
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const cat = document.getElementById('form-cat').value;
+        const loc = document.getElementById('form-loc').value;
+        const desc = document.getElementById('form-desc').value;
+
+        const card = document.createElement('div');
+        card.className = 'incident-card';
+        card.innerHTML = `
+          <div class="incident-top">
+            <span class="incident-badge red">🚨 ${cat}</span>
+            <span class="text-dim">JUST NOW</span>
+          </div>
+          <div class="incident-title">${loc}</div>
+          <div class="incident-desc">${desc} (Dispatched to municipal enforcement flying squad).</div>
+        `;
+        feed.prepend(card);
+
+        let curr = parseInt(totalCount.textContent, 10) || 342;
+        totalCount.textContent = curr + 1;
+
+        alert('Citizen Report Logged! Civic flying squad notified.');
+        form.reset();
+      });
+    })();
+  </script>
+</body>
+</html>

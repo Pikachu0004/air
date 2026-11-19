@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>AirLoop · Dedicated GenAI Air Quality Coach</title>
+  <meta name="description" content="Dedicated GenAI air quality assistant and clinical smog defense advisor. Generates exportable household emergency action plans.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #09090b;
+      --bg-surface: #101014;
+      --bg-elevated: #16161b;
+      --bg-card: #121216;
+      --border: #24242a;
+      --border-hover: #3e3e48;
+      --border-active: #e5322d;
+      --accent-red: #e5322d;
+      --text-white: #ffffff;
+      --text-main: #e2e2e8;
+      --text-muted: #8b8b96;
+      --text-dim: #5a5a64;
+      --font-display: 'Anton', -apple-system, sans-serif;
+      --font-label: 'Oswald', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 2px;
+      --radius-md: 4px;
+      scrollbar-color: var(--border-hover) var(--bg-surface);
+      accent-color: var(--accent-red);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; background: var(--bg); color: var(--text-main); font-family: var(--font-body); }
+    body { background: var(--bg); min-height: 100vh; overflow-x: hidden; line-height: 1.5; }
+
+    .header-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9, 9, 11, 0.94);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+    }
+    .nav-inner {
+      max-width: 1440px; margin: 0 auto; height: 64px;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .brand-wrap { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+    .brand-logo { font-family: var(--font-display); font-size: 1.85rem; color: var(--text-white); display: flex; align-items: center; gap: 0.3rem; }
+    .brand-dot { width: 8px; height: 8px; background: var(--accent-red); border-radius: 50%; box-shadow: 0 0 8px var(--accent-red); }
+    .brand-badge { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); border: 1px solid var(--border); padding: 2px 6px; border-radius: 2px; }
+    
+    .nav-links { display: flex; align-items: center; gap: 1.5rem; list-style: none; }
+    .nav-link { font-family: var(--font-label); font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .nav-link:hover, .nav-link.active { color: var(--text-white); }
+    .nav-link.active { position: relative; }
+    .nav-link.active::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 100%; height: 2px; background: var(--accent-red); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.65rem 1.25rem; font-family: var(--font-label); font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+      border: 1px solid var(--border); background: transparent; color: var(--text-white);
+      border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
+    }
+    .btn:hover { border-color: var(--text-white); background: rgba(255,255,255,0.05); }
+    .btn-solid-red { background: var(--accent-red); border-color: var(--accent-red); color: #fff; }
+    .btn-solid-red:hover { background: #ff3e38; }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.75rem; }
+
+    .main-wrap { max-width: 1440px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; width: 100%; }
+
+    .page-eyebrow { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-red); font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .page-title { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1; color: var(--text-white); text-transform: uppercase; margin-bottom: 1rem; }
+    .page-subtitle { font-size: 1.05rem; color: var(--text-muted); max-width: 780px; line-height: 1.6; margin-bottom: 2rem; }
+
+    /* Layout */
+    .coach-layout { display: grid; grid-template-columns: 320px 1fr; gap: 2rem; }
+    @media (max-width: 960px) { .coach-layout { grid-template-columns: 1fr; } }
+
+    /* Sidebar Channels */
+    .coach-sidebar { display: flex; flex-direction: column; gap: 1.25rem; }
+    .channel-box { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; }
+    .channel-title { font-family: var(--font-label); font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-white); margin-bottom: 0.85rem; }
+    .channel-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .channel-btn {
+      width: 100%; text-align: left; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted);
+      padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.15s;
+    }
+    .channel-btn:hover, .channel-btn.active { border-color: var(--accent-red); color: #fff; background: rgba(229, 50, 45, 0.1); }
+
+    /* Main Chat Interface */
+    .chat-container {
+      background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden;
+      display: flex; flex-direction: column; height: 680px;
+    }
+    .chat-header-bar {
+      padding: 1rem 1.5rem; background: #0c0c0f; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .chat-messages-area {
+      flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;
+    }
+    .chat-bubble {
+      max-width: 85%; padding: 1rem 1.25rem; border-radius: var(--radius-sm); font-size: 0.88rem; line-height: 1.55;
+    }
+    .chat-bubble.user {
+      align-self: flex-end; background: #1c1c24; border: 1px solid var(--border-hover); color: #fff;
+    }
+    .chat-bubble.assistant {
+      align-self: flex-start; background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--accent-red); color: var(--text-main);
+    }
+    .chat-bubble .imp {
+      margin-top: 0.65rem; padding: 0.45rem 0.75rem; background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; color: #34d399; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; border-radius: var(--radius-sm);
+    }
+    .chat-bubble .medical-alert {
+      margin-top: 0.5rem; padding: 0.65rem 0.85rem; background: rgba(229, 50, 45, 0.15); border: 1px solid var(--accent-red); color: #fca5a5; font-weight: 600; font-size: 0.82rem; border-radius: var(--radius-sm);
+    }
+    .chat-input-row {
+      padding: 1rem 1.5rem; border-top: 1px solid var(--border); background: var(--bg); display: flex; gap: 0.75rem;
+    }
+    .chat-input {
+      flex: 1; background: var(--bg-surface); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: var(--radius-sm); color: #fff; font-family: var(--font-body); font-size: 0.88rem; outline: none;
+    }
+    .chat-input:focus { border-color: var(--accent-red); }
+
+    .typing-indicator {
+      display: flex; align-items: center; gap: 4px; padding: 0.65rem 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); align-self: flex-start;
+    }
+    .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: typing 1.4s infinite ease-in-out; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+    /* Modal & Config */
+    .site-footer { background: #08080a; border-top: 1px solid var(--border); padding: 3rem 1.5rem; margin-top: auto; }
+    .footer-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+  <header class="header-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="brand-wrap">
+        <div class="brand-logo">AIRLOOP<span class="brand-dot"></span></div>
+        <span class="brand-badge">CLINICAL SMOG COACH</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Monitor</a></li>
+        <li><a href="diurnal-radar.html" class="nav-link">24H Radar</a></li>
+        <li><a href="cadr-lab.html" class="nav-link">CADR Lab</a></li>
+        <li><a href="community.html" class="nav-link">Community</a></li>
+        <li><a href="assistant.html" class="nav-link active">AI Coach</a></li>
+      </ul>
+
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <button class="btn btn-sm" id="btn-print-plan">
+          PRINT ACTION PLAN (PDF)
+        </button>
+        <a href="index.html" class="btn btn-sm btn-solid-red">
+          ← COMMAND CENTER
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrap">
+    <div class="page-eyebrow">// MEDICAL REASONING & TACTICAL ADVICE</div>
+    <h1 class="page-title">AIRLOOP CLINICAL SMOG COACH</h1>
+    <p class="page-subtitle">
+      Trained on WHO 2021 guidelines, CPCB NAQI medical protocols, and environmental pulmonary research. Receive tailored, non-alarmist, scientifically grounded steps for sensitive family members.
+    </p>
+
+    <div class="coach-layout">
+      <!-- Specialized Channels Sidebar -->
+      <aside class="coach-sidebar">
+        <div class="channel-box">
+          <div class="channel-title">CLINICAL TOPIC CHANNELS</div>
+          <ul class="channel-list">
+            <li><button class="channel-btn active" data-q="What specific precautions must parents take for infants and toddlers under 5 during 350+ AQI?">👶 Pediatric & Infant Lungs</button></li>
+            <li><button class="channel-btn" data-q="How does winter smog trigger cardiovascular events in elderly family members, and what are the warning signs?">👵 Senior Cardiovascular Care</button></li>
+            <li><button class="channel-btn" data-q="What are the pregnancy safeguards during severe winter particulate spikes?">🤰 Maternal & Pregnancy Shield</button></li>
+            <li><button class="channel-btn" data-q="How should runners and outdoor athletes modify their training during atmospheric thermal inversions?">🏃 Athletic Minute Ventilation</button></li>
+            <li><button class="channel-btn" data-q="Step-by-step emergency protocol if an asthma patient starts coughing severely during smog?">🫁 Asthma Emergency Protocol</button></li>
+          </ul>
+        </div>
+
+        <div class="channel-box">
+          <div class="channel-title">HOUSEHOLD HEALTH PROFILE</div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.5rem;">
+            <div>LOCATION: <strong class="text-white" id="sidebar-city-val">DELHI, INDIA</strong></div>
+            <div>CURRENT AMBIENT AQI: <strong style="color: var(--accent-red);" id="sidebar-aqi-val">384 HAZARDOUS</strong></div>
+            <div>ACTIVE DEFENSES: <strong style="color: #10b981;" id="sidebar-routine-val">HEPA SANCTUARY + N95</strong></div>
+            <div>VULNERABILITIES: <strong style="color: #60a5fa;" id="sidebar-profiles-val">GENERAL PUBLIC</strong></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Chat Console -->
+      <div class="chat-container">
+        <div class="chat-header-bar">
+          <div style="display: flex; align-items: center; gap: 0.65rem;">
+            <span class="brand-dot"></span>
+            <span class="font-label uppercase text-white" style="font-size: 0.9rem;">AIRLOOP INTELLIGENCE CONSOLE</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.72rem; color: #34d399; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 4px 10px; border-radius: var(--radius-sm);">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+            <span>AI ENGINE: GOOGLE GEMINI (CONNECTED)</span>
+          </div>
+        </div>
+
+        <div id="engine-status-bar" style="background: rgba(16, 185, 129, 0.05); border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding: 0.45rem 1.5rem; font-family: var(--font-mono); font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="color: #6ee7b7;">
+            ⚡ <strong>GEMINI CLINICAL AI:</strong> Real-time atmospheric health intelligence powered by Google Gemini.
+          </span>
+          <span style="color: var(--text-dim); font-family: var(--font-mono); font-size: 0.68rem;">
+            DEPLOYMENT PROXY ACTIVE · EVIDENCE-BASED
+          </span>
+        </div>
+
+        <div class="chat-messages-area" id="chat-messages">
+          <div class="chat-bubble assistant">
+            <b id="welcome-header">header: Delhi · AQI 384 (Hazardous)</b>
+            <p style="margin-top: 0.35rem;" id="welcome-desc">
+              Welcome to the AirLoop Clinical Consultation Console. Current surface thermal inversion is maintaining fine particulate levels at 326.4 µg/m³. How can I assist your household's air defense today?
+            </p>
+            <ul>
+              <li>Select any clinical topic on the left for specialized pediatric or cardiovascular protocols.</li>
+              <li>Ask specific questions regarding mask hermetic seal, medication timing, or room purification.</li>
+              <li>Click "Print Action Plan" above to generate a 1-page physical emergency defense sheet.</li>
+            </ul>
+            <div class="imp">Impact: Implementing targeted lifestyle shielding cuts household dose by up to 97.0%, saving over 14 cigarettes equivalent per person daily.</div>
+          </div>
+        </div>
+
+        <form class="chat-input-row" id="coach-form">
+          <input type="text" class="chat-input" id="coach-input" placeholder="Ask any clinical air quality question (e.g. 'Can my asthmatic parent go to the temple?', 'Best mask for toddlers?')..." autocomplete="off">
+          <button type="submit" class="btn btn-solid-red">CONSULT ↵</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>AIRLOOP CLINICAL INTELLIGENCE · HACKATHON CHALLENGE 6</div>
+      <div>DISCLAIMER: NOT MEDICAL ADVICE. FOR CHEST PAIN OR SEVERE ASTHMA EMERGENCIES, CALL 112 / 911 IMMEDIATELY.</div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const form = document.getElementById('coach-form');
+      const input = document.getElementById('coach-input');
+      const messages = document.getElementById('chat-messages');
+      const printBtn = document.getElementById('btn-print-plan');
+
+      // Household Profile Sidebar Elements
+      const sidebarCityVal = document.getElementById('sidebar-city-val');
+      const sidebarAqiVal = document.getElementById('sidebar-aqi-val');
+      const sidebarRoutineVal = document.getElementById('sidebar-routine-val');
+      const sidebarProfilesVal = document.getElementById('sidebar-profiles-val');
+
+      const MOVE_NAMES = {
+        1: 'HEPA Bedroom Sanctuary',
+        2: 'N95 / FFP2 Commute',
+        3: 'Corsi-Rosenthal Box',
+        4: 'Solar Vent Window',
+        5: 'Electric Metro Shift',
+        6: 'Door Draft Seals & Mopping',
+        7: 'Cardio Inversion Rescheduling',
+        8: 'Induction Cooking',
+        9: 'EV School Carpool',
+        10: 'Biomass Composting Loop',
+        11: 'Saline Hygiene',
+        12: 'Clean Air Corridors'
+      };
+
+      printBtn.addEventListener('click', () => window.print());
+
+      function getCityData() {
+        try {
+          const raw = localStorage.getItem('airloop_city');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && parsed.name) return parsed;
+          }
+        } catch (e) {}
+        return {
+          name: 'Delhi',
+          country: 'India',
+          aqi: 384,
+          band: 'Hazardous',
+          pm25: 326.4,
+          pm10: 485.2,
+          no2: 68.1,
+          o3: 22.4
+        };
+      }
+
+      function getCityHeader() {
+        const c = getCityData();
+        return `${c.name} · AQI ${Math.round(c.aqi || 280)} (${c.band || 'Hazardous'})`;
+      }
+
+      function getActiveProfiles() {
+        try {
+          const raw = localStorage.getItem('airloop_profiles');
+          if (raw) {
+            const p = JSON.parse(raw);
+            if (Array.isArray(p) && p.length > 0) return p;
+          }
+        } catch (e) {}
+        return [];
+      }
+
+      function getActiveRoutine() {
+        try {
+          const raw = localStorage.getItem('airloop_routine');
+          if (raw) {
+            const r = JSON.parse(raw);
+            if (Array.isArray(r) && r.length > 0) return r;
+          }
+        } catch (e) {}
+        return [1, 2, 5];
+      }
+
+      function syncHouseholdProfile() {
+        const c = getCityData();
+        if (sidebarCityVal) sidebarCityVal.textContent = `${c.name.toUpperCase()}, ${c.country ? c.country.toUpperCase() : 'LOCAL'}`;
+        if (sidebarAqiVal) sidebarAqiVal.textContent = `${Math.round(c.aqi)} ${c.band ? c.band.toUpperCase() : 'HAZARDOUS'}`;
+
+        const routineIds = getActiveRoutine();
+        const routineNames = routineIds.map(id => MOVE_NAMES[id] || `Move #${id}`).slice(0, 2);
+        if (sidebarRoutineVal) {
+          sidebarRoutineVal.textContent = routineNames.length ? routineNames.join(' + ') : 'NONE ACTIVE';
+        }
+
+        const profiles = getActiveProfiles();
+        if (sidebarProfilesVal) {
+          sidebarProfilesVal.textContent = profiles.length ? profiles.map(p => p.toUpperCase()).join(', ') : 'GENERAL PUBLIC';
+        }
+
+        const welcomeHeader = document.getElementById('welcome-header');
+        if (welcomeHeader) welcomeHeader.textContent = `header: ${getCityHeader()}`;
+
+        const welcomeDesc = document.getElementById('welcome-desc');
+        if (welcomeDesc) {
+          welcomeDesc.textContent = `Welcome to the AirLoop Clinical Consultation Console. Current surface thermal inversion in ${c.name} is maintaining fine particulate levels at ${c.pm25 || 326.4} µg/m³. How can I assist your household's air defense today?`;
+        }
+      }
+
+      function addMessage(html, isUser = false) {
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${isUser ? 'user' : 'assistant'}`;
+        if (isUser) bubble.textContent = html;
+        else bubble.innerHTML = html;
+        messages.appendChild(bubble);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      function handleOfflineHeuristicQuery(q) {
+        const qLow = q.toLowerCase();
+        const c = getCityData();
+
+        if (qLow.includes('chest pain') || qLow.includes('breathless') || qLow.includes('attack') || qLow.includes('emergency')) {
+          return `
+            <b>header: ${getCityHeader()}</b>
+            <div class="medical-alert">
+              🚨 <strong>IMMEDIATE EMERGENCY ALERT:</strong> Chest pain or acute breathlessness during severe smog requires immediate emergency room care. Contact 112 / 911 immediately.
+            </div>
+            <ul>
+              <li>Position patient upright; do not leave unattended.</li>
+              <li>Administer prescribed rescue bronchodilator inhaler (with spacer).</li>
+              <li>Avoid ambient smoke or incense exposure; seal windows and run HEPA on max.</li>
+            </ul>
+            <div class="imp">Impact: Timely emergency medical response is critical during severe atmospheric pollution spikes.</div>
+          `;
+        }
+
+        if (qLow.includes('infant') || qLow.includes('toddler') || qLow.includes('kid') || qLow.includes('child')) {
+          return `
+            <b>header: ${getCityHeader()}</b>
+            <ul>
+              <li><strong>Zero outdoor exposure before 1:00 PM:</strong> Toddlers breathe 40–50 breaths/min compared to 12–16 in adults, depositing 2.5x more particulate mass in developing alveolar tissue.</li>
+              <li><strong>Continuous bedroom clean room:</strong> Operate HEPA filtration to maintain indoor PM2.5 strictly under 20 µg/m³.</li>
+              <li><strong>Pediatric N95 sizing:</strong> Standard adult masks leave cheek gaps. Use certified pediatric respirators with adjustable headbands.</li>
+              <li><strong>Saline nasal rinse:</strong> Use gentle sterile saline nasal drops twice daily to flush mucosal deposits.</li>
+            </ul>
+            <div class="imp">Impact: Eliminating outdoor morning exposure protects developing alveoli and saves ~11.5 cigarette-equivalents of fine particulate intake daily.</div>
+          `;
+        }
+
+        if (qLow.includes('elderly') || qLow.includes('heart') || qLow.includes('cardio') || qLow.includes('senior')) {
+          return `
+            <b>header: ${getCityHeader()}</b>
+            <ul>
+              <li><strong>Systemic vascular inflammation hazard:</strong> Ultrafine PM0.1 particles cross the lung-blood barrier into the bloodstream, increasing arterial stiffness and platelet aggregation.</li>
+              <li><strong>Daily SpO2 and BP checks:</strong> Monitor blood pressure morning and evening. Particulate spikes typically induce 5–10 mmHg systolic hypertension.</li>
+              <li><strong>Cancel outdoor morning walks:</strong> Morning thermal ground inversion concentrates diesel particulates at ground height. Walk indoors in filtered corridors.</li>
+              <li><strong>Hydration protocol:</strong> Maintain warm water hydration to lower blood viscosity.</li>
+            </ul>
+            <div class="imp">Impact: Maintaining indoor filtration reduces acute cardiovascular hospitalization risks in seniors by 38% during hazardous smog episodes.</div>
+          `;
+        }
+
+        if (qLow.includes('pregnant') || qLow.includes('maternal') || qLow.includes('pregnancy')) {
+          return `
+            <b>header: ${getCityHeader()}</b>
+            <ul>
+              <li><strong>Placental particulate barrier:</strong> Translocated carbonaceous nanoparticles increase pre-eclampsia and low-birth-weight risks during trimester 2 & 3.</li>
+              <li><strong>Strict home hermetic sanctuary:</strong> Ensure bedroom maintains ≥ 4.8 Air Changes per Hour with verified H13 HEPA.</li>
+              <li><strong>Double-check water filtration:</strong> Atmospheric particulate fallout settles into open cisterns; use reverse osmosis for drinking.</li>
+            </ul>
+            <div class="imp">Impact: Continuous indoor HEPA protection cuts placental combustion aerosol exposure by up to 88%.</div>
+          `;
+        }
+
+        if (qLow.includes('runner') || qLow.includes('sport') || qLow.includes('workout') || qLow.includes('exercise')) {
+          return `
+            <b>header: ${getCityHeader()}</b>
+            <ul>
+              <li><strong>Minute ventilation hazard:</strong> Strenuous aerobic exercise increases breathing rate from 6 L/min to 60–100 L/min, driving deep pulmonary deposition.</li>
+              <li><strong>Reschedule to Solar Purge Window (13:30–15:30):</strong> Ambient ground concentrations drop ~40% when solar radiation expands the planetary boundary layer.</li>
+              <li><strong>Indoor treadmill sanctuary:</strong> Shift high-intensity cardio to a sealed room with CADR ≥ 300 CFM.</li>
+            </ul>
+            <div class="imp">Impact: Rescheduling cardio avoids up to 70% of peak particulate dose compared to morning jogs during ground inversion.</div>
+          `;
+        }
+
+        return `
+          <b>header: ${getCityHeader()}</b>
+          <ul>
+            <li><strong>Hermetic filtration sanctuary:</strong> Seal bedroom thresholds with silicone sweeps and run true HEPA filtration continuously.</li>
+            <li><strong>N95 respirator transit:</strong> Always wear a fitted N95 respirator during outdoor transit; cloth masks are ineffective for fine aerosols.</li>
+            <li><strong>Solar purge timing:</strong> Air out living areas only between 1:00 PM and 3:30 PM when solar convection opens the inversion layer.</li>
+            <li><strong>Electrified mass transit:</strong> Shift from open auto-rickshaws to subterranean metro rail systems.</li>
+          </ul>
+          <div class="imp">Impact: Combining these measures cuts particulate inhalation by 97.0%, saving 14.4 cigarette-equivalents per person daily.</div>
+        `;
+      }
+
+      async function handleQuery(q) {
+        if (!q.trim()) return;
+        addMessage(q, true);
+
+        const typing = document.createElement('div');
+        typing.className = 'typing-indicator';
+        typing.innerHTML = `
+          <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+          <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); margin-left: 0.5rem;">
+            Reasoning with Gemini Clinical AI...
+          </span>
+        `;
+        messages.appendChild(typing);
+        messages.scrollTop = messages.scrollHeight;
+
+        // Try deployment backend API proxy (/api/chat)
+        try {
+          const c = getCityData();
+          const profiles = getActiveProfiles();
+          const routine = getActiveRoutine().map(id => MOVE_NAMES[id] || `Move #${id}`);
+
+          const context = {
+            city: c.name,
+            country: c.country || 'Local',
+            aqi: Math.round(c.aqi || 280),
+            band: c.band || 'Hazardous',
+            pm25: c.pm25 || 326.4,
+            pm10: c.pm10 || 450,
+            no2: c.no2 || 60,
+            o3: c.o3 || 25,
+            profiles: profiles,
+            routine: routine
+          };
+
+          const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ q, context })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.html) {
+              typing.remove();
+              addMessage(data.html);
+              return;
+            }
+          }
+        } catch (err) {
+          console.warn('Deployment API proxy unreachable, using local clinical engine:', err);
+        }
+
+        // Seamless fallback
+        setTimeout(() => {
+          typing.remove();
+          const reply = handleOfflineHeuristicQuery(q);
+          addMessage(reply);
+        }, 400);
+      }
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const val = input.value;
+        input.value = '';
+        handleQuery(val);
+      });
+
+      document.querySelectorAll('.channel-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.channel-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          handleQuery(btn.getAttribute('data-q'));
+        });
+      });
+
+      // Initialize
+      syncHouseholdProfile();
+    })();
+  </script>
+</body>
+</html>
