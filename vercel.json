@@ -1,10 +1,14 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
+  "version": 2,
+  "functions": {
+    "server.js": {
+      "includeFiles": "*.html"
+    },
+    "index.js": {
+      "includeFiles": "*.html"
+    }
+  },
   "rewrites": [
-    { "source": "/assistant", "destination": "/assistant.html" },
-    { "source": "/cadr-lab", "destination": "/cadr-lab.html" },
-    { "source": "/diurnal-radar", "destination": "/diurnal-radar.html" },
-    { "source": "/community", "destination": "/community.html" }
+    { "source": "/api/(.*)", "destination": "/api/$1" }
   ]
 }

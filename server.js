@@ -26,6 +26,15 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 
+// Statically read and cache HTML templates in memory
+// (Static string literals ensure @vercel/nft includes these files in the serverless bundle)
+const HTML_PAGES = {};
+try { HTML_PAGES['index.html'] = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8'); } catch (e) {}
+try { HTML_PAGES['assistant.html'] = fs.readFileSync(path.join(__dirname, 'assistant.html'), 'utf8'); } catch (e) {}
+try { HTML_PAGES['cadr-lab.html'] = fs.readFileSync(path.join(__dirname, 'cadr-lab.html'), 'utf8'); } catch (e) {}
+try { HTML_PAGES['diurnal-radar.html'] = fs.readFileSync(path.join(__dirname, 'diurnal-radar.html'), 'utf8'); } catch (e) {}
+try { HTML_PAGES['community.html'] = fs.readFileSync(path.join(__dirname, 'community.html'), 'utf8'); } catch (e) {}
+
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
@@ -53,7 +62,9 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // --------------------------------------------------------------------------
   // API Route: GET /api/forecast
+  // --------------------------------------------------------------------------
   if (pathname === '/api/forecast' && req.method === 'GET') {
     const lat = parsedUrl.query.lat || '28.65195';
     const lon = parsedUrl.query.lon || '77.23149';
@@ -131,36 +142,41 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // --------------------------------------------------------------------------
   // API Route: POST /api/chat
+  // --------------------------------------------------------------------------
   if (pathname === '/api/chat' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk);
     req.on('end', async () => {
       try {
         const payload = JSON.parse(body || '{}');
-        const { q, context } = payload;
+        const q = payload.q || '';
+        const context = payload.context || {};
+        const apiKey = payload.apiKey || GEMINI_API_KEY;
+
         if (!q) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: 'Missing query parameter "q"' }));
+          res.end(JSON.stringify({ error: 'Missing question parameter' }));
           return;
         }
 
-        const city = context?.city || 'Delhi';
-        const aqi = Math.round(context?.aqi || 384);
-        const band = context?.band || 'Hazardous';
+        const city = context.city || 'Delhi NCR';
+        const aqi = context.aqi || 384;
+        const band = context.band || 'Severe';
 
-        const systemPrompt = `You are AirLoop Clinical Smog Coach, an expert environmental pulmonology and urban air quality AI assistant helping families navigate severe winter smog.
-Atmospheric Telemetry Context: ${JSON.stringify(context || {})}
+        const systemPrompt = `You are AirLoop Clinical Smog Coach, an expert environmental pulmonology and urban air quality AI assistant for families navigating severe winter smog.
+Context: City=${city}, AQI=${aqi} (${band}), Baseline PM2.5=${context.pm25 || 326} µg/m³.
 Rules:
-1. First line MUST be: <b>header: ${city} · AQI ${aqi} (${band})</b>
-2. Provide a <ul> list of 3-4 specific, doable steps (CADR room filtration, fitted N95 respirator seals, solar purge window 13:00-15:30 ventilation, and transit mode alternatives).
-3. Conclude with: <div class="imp">Impact: [Exact quantified number: % dose cut, cigarette-equivalents avoided, or kg CO2 prevented]</div>
-4. Emergency alert: If acute chest pain or asthma attack is mentioned, immediately warn to call 112/911.`;
+1. Format output cleanly in HTML: <b>header: City · AQI (level)</b>, a <ul> with 3-4 specific, actionable steps, and a <div class="imp">Impact: …</div> with quantified metrics (% dose cut, cigarette-equivalents, or kg CO2).
+2. Tailor strictly to profile: kids/asthma/elderly require immediate indoor isolation, certified pediatric N95 respirators, and continuous HEPA filtration.
+3. Include diurnal awareness: highlight the solar purge window (13:00 - 15:30) when the inversion boundary opens, and warn against morning exercise during nocturnal traps (06:00 - 09:00).
+4. Never give formal medical diagnosis. If chest pain or severe breathlessness is mentioned, issue an immediate emergency clinical alert.`;
 
-        // If GEMINI_API_KEY is configured in deployment environment:
-        if (GEMINI_API_KEY) {
+        // 1. Google Gemini API Call if Key Available
+        if (apiKey) {
           try {
-            const apiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
+            const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -168,32 +184,31 @@ Rules:
                 generationConfig: { temperature: 0.35, maxOutputTokens: 600 }
               })
             });
-            const data = await apiRes.json();
-            if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-              let text = data.candidates[0].content.parts[0].text;
-              text = text.replace(/^```html\s*|\s*```$/gi, '').trim();
+
+            const geminiData = await geminiRes.json();
+            if (geminiData.candidates && geminiData.candidates[0]?.content?.parts?.[0]?.text) {
+              const rawHtml = geminiData.candidates[0].content.parts[0].text;
+              const cleanHtml = rawHtml.replace(/^```html\s*|\s*```$/gi, '').trim();
               res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ html: text, engine: GEMINI_MODEL, provider: 'Google Gemini (Live)' }));
+              res.end(JSON.stringify({ html: cleanHtml, engine: GEMINI_MODEL, provider: 'Google Gemini' }));
               return;
             }
           } catch (e) {
-            console.warn('Gemini upstream error, falling back:', e.message);
+            console.error('Gemini call error:', e.message);
           }
         }
 
-        // Clinical heuristic fallback
+        // 2. High-Fidelity Clinical Heuristics Fallback
         const qLow = q.toLowerCase();
         let fallbackHtml = '';
-        if (qLow.includes('chest pain') || qLow.includes('breathless') || qLow.includes('attack')) {
+
+        if (qLow.includes('chest') || qLow.includes('breath') || qLow.includes('pain') || qLow.includes('emergency')) {
           fallbackHtml = `
-            <b>header: ${city} · AQI ${aqi} (${band})</b>
-            <div class="medical-alert" style="margin-top:0.5rem; padding:0.65rem 0.85rem; background:rgba(229,50,45,0.15); border:1px solid #e5322d; color:#fca5a5; font-weight:600; font-size:0.82rem; border-radius:2px;">
-              🚨 <strong>IMMEDIATE EMERGENCY ALERT:</strong> Chest pain or acute breathlessness during severe smog requires immediate emergency room care. Contact 112 / 911 immediately.
-            </div>
+            <b style="color:var(--red-light);">EMERGENCY CLINICAL TRIAGE · ${city} · AQI ${aqi}</b>
             <ul>
-              <li>Position patient upright; do not leave unattended.</li>
-              <li>Administer prescribed rescue bronchodilator inhaler (with spacer).</li>
-              <li>Avoid ambient smoke or incense exposure; seal windows and run HEPA continuous.</li>
+              <li><strong>Immediate Medical Attention:</strong> Symptoms of acute respiratory distress or chest tightness in AQI >300 require immediate medical evaluation.</li>
+              <li><strong>Emergency Contact:</strong> Dial 112 (National Emergency) or 102 (Ambulance Service) immediately.</li>
+              <li><strong>Acute Indoor Triage:</strong> Administer prescribed rescue inhaler (e.g. Salbutamol via spacer), remain seated upright in an air-purified room, and avoid any physical exertion.</li>
             </ul>
             <div class="imp">Impact: Timely emergency medical response is critical during severe atmospheric pollution spikes.</div>
           `;
@@ -230,7 +245,36 @@ Rules:
     return;
   }
 
-  // Static File Serving
+  // --------------------------------------------------------------------------
+  // Static HTML Pages (Instant In-Memory Resolution for both clean & .html URLs)
+  // --------------------------------------------------------------------------
+  const cleanPath = pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+
+  let htmlContent = null;
+  if (!cleanPath || cleanPath === 'index' || cleanPath === 'index.html') {
+    htmlContent = HTML_PAGES['index.html'];
+  } else if (cleanPath === 'assistant' || cleanPath === 'assistant.html') {
+    htmlContent = HTML_PAGES['assistant.html'];
+  } else if (cleanPath === 'cadr-lab' || cleanPath === 'cadr-lab.html') {
+    htmlContent = HTML_PAGES['cadr-lab.html'];
+  } else if (cleanPath === 'diurnal-radar' || cleanPath === 'diurnal-radar.html') {
+    htmlContent = HTML_PAGES['diurnal-radar.html'];
+  } else if (cleanPath === 'community' || cleanPath === 'community.html') {
+    htmlContent = HTML_PAGES['community.html'];
+  }
+
+  if (htmlContent) {
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'public, max-age=0, must-revalidate'
+    });
+    res.end(htmlContent);
+    return;
+  }
+
+  // --------------------------------------------------------------------------
+  // Static File Fallback (CSS, JS, Images, etc.)
+  // --------------------------------------------------------------------------
   let filePath = path.join(__dirname, pathname === '/' ? 'index.html' : pathname);
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     filePath = path.join(__dirname, 'index.html');
@@ -241,6 +285,12 @@ Rules:
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
+      // If still not found, return index.html as single-page fallback
+      if (HTML_PAGES['index.html']) {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(HTML_PAGES['index.html']);
+        return;
+      }
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('File Not Found');
       return;
@@ -250,6 +300,12 @@ Rules:
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`AirLoop Full-Stack Server running at http://localhost:${PORT}`);
-});
+// Start listening if executed directly or in standalone mode
+if (require.main === module || !process.env.VERCEL) {
+  server.listen(PORT, () => {
+    console.log(`AirLoop Full-Stack Server running at http://localhost:${PORT}`);
+  });
+}
+
+// Export server instance for Vercel Serverless / Lambda runtime
+module.exports = server;

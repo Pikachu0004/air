@@ -2,9 +2,10 @@
   "name": "airloop-urbanair",
   "version": "3.0.0",
   "description": "GenAI-Powered Urban Winter Smog & Atmospheric Health Defense Platform",
+  "main": "server.js",
   "scripts": {
-    "start": "node local-server.js",
-    "dev": "node local-server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "engines": {
     "node": ">=18.0.0"
