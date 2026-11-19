@@ -140,3 +140,60 @@ test('Diurnal Atmospheric Inversion: Accurate peak nocturnal trapping thresholds
   assert.equal(isNocturnalInversionWindow(14), false);  // 2 PM daytime solar mixing
   assert.equal(isNocturnalInversionWindow(23), true);  // 11 PM ground inversion begins
 });
+
+// ----------------------------------------------------------------------------
+// 9. Community & Code Quality Standards Test
+// ----------------------------------------------------------------------------
+test('Code Quality & Community Health: Standards, Linter, and Template files exist', () => {
+  const root = path.join(__dirname, '..');
+  const requiredFiles = [
+    'CONTRIBUTING.md',
+    'CODE_OF_CONDUCT.md',
+    '.eslintrc.json',
+    '.prettierrc.json',
+    '.editorconfig',
+    '.github/workflows/ci.yml',
+    '.github/ISSUE_TEMPLATE/bug_report.md',
+    '.github/ISSUE_TEMPLATE/feature_request.md'
+  ];
+
+  for (const file of requiredFiles) {
+    const fullPath = path.join(root, file);
+    assert.ok(fs.existsSync(fullPath), `Quality standard file ${file} must exist`);
+  }
+});
+
+// ----------------------------------------------------------------------------
+// 10. WCAG 2.1 AA Accessibility Landmarks & Skip-Links Test
+// ----------------------------------------------------------------------------
+test('Accessibility Architecture: All 5 pages have WCAG 2.4.1 Skip-links and main targets', () => {
+  const root = path.join(__dirname, '..');
+  const pages = [
+    'index.html',
+    'diurnal-radar.html',
+    'cadr-lab.html',
+    'community.html',
+    'assistant.html'
+  ];
+
+  for (const page of pages) {
+    const html = fs.readFileSync(path.join(root, page), 'utf8');
+    assert.ok(html.includes('class="skip-link"'), `${page} must contain a WCAG skip-link`);
+    assert.ok(html.includes('id="main-content"'), `${page} must contain #main-content target`);
+    assert.ok(html.includes('lang="en"'), `${page} must specify lang="en"`);
+  }
+});
+
+// ----------------------------------------------------------------------------
+// 11. Package Manifest Integrity Test
+// ----------------------------------------------------------------------------
+test('Package Manifest: Full metadata and test/audit scripts configured', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+  assert.equal(pkg.name, 'airloop-urbanair');
+  assert.ok(pkg.author && pkg.author.includes('Kishan Nishad'), 'Author must cite Kishan Nishad');
+  assert.ok(pkg.repository && pkg.repository.url, 'Repository must be declared');
+  assert.ok(pkg.scripts.test, 'Test script must exist');
+  assert.ok(pkg.scripts['test:coverage'], 'Coverage script must exist');
+  assert.ok(pkg.scripts.lint, 'Lint script must exist');
+  assert.ok(pkg.scripts.audit, 'Audit script must exist');
+});

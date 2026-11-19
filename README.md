@@ -32,7 +32,9 @@
 [🛠️ Quick Start](#-quick-start--local-deployment) •
 [⚖️ License](LICENSE) •
 [🛡️ Security](SECURITY.md) •
-[♿ Accessibility](ACCESSIBILITY.md)
+[♿ Accessibility](ACCESSIBILITY.md) •
+[🤝 Contributing](CONTRIBUTING.md) •
+[📜 Code of Conduct](CODE_OF_CONDUCT.md)
 
 ---
 
@@ -295,7 +297,9 @@ Or connect the repository on [vercel.com/new](https://vercel.com/new):
   <p>
     <a href="LICENSE"><strong>⚖️ License</strong></a> &nbsp;•&nbsp;
     <a href="SECURITY.md"><strong>🛡️ Security Policy</strong></a> &nbsp;•&nbsp;
-    <a href="ACCESSIBILITY.md"><strong>♿ Accessibility Statement</strong></a>
+    <a href="ACCESSIBILITY.md"><strong>♿ Accessibility Statement</strong></a> &nbsp;•&nbsp;
+    <a href="CONTRIBUTING.md"><strong>🤝 Contributing</strong></a> &nbsp;•&nbsp;
+    <a href="CODE_OF_CONDUCT.md"><strong>📜 Code of Conduct</strong></a>
   </p>
   <sub>AirLoop Atmospheric Defense Platform · Built with ❤️ by Kishan Nishad for PromptWar</sub>
 </div>

@@ -4,6 +4,18 @@
  */
 
 export default async function handler(req, res) {
+  // CORS & Hardened Security Headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   const { lat = '28.65195', lon = '77.23149', city = 'Delhi' } = req.query || {};
 
   try {

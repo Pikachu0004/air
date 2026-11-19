@@ -2,12 +2,32 @@
   "name": "airloop-urbanair",
   "version": "3.0.0",
   "description": "GenAI-Powered Urban Winter Smog & Atmospheric Health Defense Platform",
+  "author": "Kishan Nishad <https://github.com/Pikachu0004>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pikachu0004/air.git"
+  },
+  "homepage": "https://github.com/Pikachu0004/air#readme",
+  "bugs": {
+    "url": "https://github.com/Pikachu0004/air/issues"
+  },
+  "keywords": [
+    "air-quality",
+    "urban-smog",
+    "atmospheric-defense",
+    "cadr-physics",
+    "google-gemini",
+    "promptwar",
+    "who-guidelines"
+  ],
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
     "test": "node --test test/*.test.js",
-    "lint": "node -c server.js index.js api/*.js test/*.test.js"
+    "test:coverage": "node --test --experimental-test-coverage test/*.test.js",
+    "lint": "node -c server.js index.js api/*.js test/*.test.js",
+    "audit": "npm run lint && npm test"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -120,9 +120,31 @@
 
     .site-footer { background: #08080a; border-top: 1px solid var(--border); padding: 3rem 1.5rem; margin-top: auto; }
     .footer-inner { max-width: 1440px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); }
+
+    /* WCAG 2.4.1 Skip Link */
+    .skip-link {
+      position: absolute;
+      top: -60px;
+      left: 12px;
+      background: var(--red);
+      color: #fff;
+      padding: 10px 18px;
+      z-index: 100000;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: top 0.2s ease;
+    }
+    .skip-link:focus {
+      top: 12px;
+      outline: 2px solid #fff;
+    }
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
   <header class="header-nav">
     <div class="nav-inner">
       <a href="index.html" class="brand-wrap">
@@ -149,7 +171,7 @@
     </div>
   </header>
 
-  <main class="main-wrap">
+  <main class="main-wrap" id="main-content">
     <div class="page-eyebrow">// INDOOR ENVIRONMENTAL ENGINEERING · FLUID SIMULATION</div>
     <h1 class="page-title">CADR INDOOR AIR LAB</h1>
     <p class="page-subtitle">
@@ -184,7 +206,7 @@
             <span>Floor Area</span>
             <strong id="disp-area" class="text-white font-mono">250 sq ft</strong>
           </div>
-          <input type="range" class="range-slider" id="slider-area" min="80" max="1600" step="20" value="250">
+          <input type="range" class="range-slider" id="slider-area" aria-label="Room Floor Area in Square Feet" min="80" max="1600" step="20" value="250">
         </div>
 
         <!-- Ceiling Height Slider -->
@@ -193,7 +215,7 @@
             <span>Ceiling Height</span>
             <strong id="disp-height" class="text-white font-mono">9.5 ft</strong>
           </div>
-          <input type="range" class="range-slider" id="slider-height" min="8" max="16" step="0.5" value="9.5">
+          <input type="range" class="range-slider" id="slider-height" aria-label="Room Ceiling Height in Feet" min="8" max="16" step="0.5" value="9.5">
         </div>
 
         <!-- Filtration System Selector -->
@@ -201,7 +223,7 @@
           <div class="form-label-row">
             <span>Filtration Mechanism</span>
           </div>
-          <select class="custom-select" id="select-filter">
+          <select class="custom-select" id="select-filter" aria-label="Filtration system mechanism">
             <option value="420" selected>DIY Corsi-Rosenthal Box (4x MERV 13 + Box Fan · 420 CFM · ₹3,500)</option>
             <option value="260">Premium Commercial True HEPA H13 (260 CFM · ₹14,500)</option>
             <option value="120">Compact Bedside Purifier (120 CFM · ₹5,200 · Under-capacity)</option>
@@ -215,7 +237,7 @@
           <div class="form-label-row">
             <span>Building Envelope Seal Status</span>
           </div>
-          <select class="custom-select" id="select-seal">
+          <select class="custom-select" id="select-seal" aria-label="Building envelope seal status">
             <option value="sealed" selected>Hermetically Sealed (Silicone door sweep & weather-taped windows)</option>
             <option value="standard">Standard Closed Door (Unsealed perimeter gaps, 0.35 ACH leakage)</option>
             <option value="cracked">Window Cracked Open / Drafty Balcony Door (Severe 0.95 ACH infiltration)</option>
@@ -228,7 +250,7 @@
             <span>Outdoor Ambient PM2.5 Episode</span>
             <strong id="disp-outdoor-pm" class="text-red font-mono">326.4 µg/m³ (Hazardous Delhi Smog)</strong>
           </div>
-          <input type="range" class="range-slider" id="slider-outdoor-pm" min="30" max="600" step="10" value="326">
+          <input type="range" class="range-slider" id="slider-outdoor-pm" aria-label="Outdoor ambient PM2.5 level" min="30" max="600" step="10" value="326">
         </div>
 
         <button class="btn btn-solid-red" style="width: 100%; margin-top: 0.5rem;" id="save-to-routine-btn">

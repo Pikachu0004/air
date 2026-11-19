@@ -27,8 +27,8 @@ jobs:
     - name: Syntax & Lint Verification
       run: npm run lint
 
-    - name: Execute Automated Test Suite
-      run: npm test
+    - name: Execute Automated Test Suite with Coverage
+      run: npm run test:coverage
 
     - name: Verify Repository Size (< 10 MB limit)
       run: |
@@ -40,9 +40,11 @@ jobs:
         fi
         echo "Repository size is strictly within limits (< 10 MB)."
 
-    - name: Verify Governance Compliance Files
+    - name: Verify Governance & Community Standards Files
       run: |
         test -f LICENSE || exit 1
         test -f SECURITY.md || exit 1
         test -f ACCESSIBILITY.md || exit 1
-        echo "All governance files (LICENSE, SECURITY, ACCESSIBILITY) verified."
+        test -f CONTRIBUTING.md || exit 1
+        test -f CODE_OF_CONDUCT.md || exit 1
+        echo "All governance & community standards files verified."
