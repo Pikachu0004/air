@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "test": "node --test test/*.test.js",
+    "lint": "node -c server.js index.js api/*.js test/*.test.js"
   },
   "engines": {
     "node": ">=18.0.0"

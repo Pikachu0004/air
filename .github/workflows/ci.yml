@@ -1,0 +1,48 @@
+name: AirLoop CI & Quality Audit
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  audit-and-test:
+    name: Code Quality, Testing & Security Audit
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Syntax & Lint Verification
+      run: npm run lint
+
+    - name: Execute Automated Test Suite
+      run: npm test
+
+    - name: Verify Repository Size (< 10 MB limit)
+      run: |
+        TOTAL_SIZE_KB=$(du -sk . | cut -f1)
+        echo "Current repository size: ${TOTAL_SIZE_KB} KB"
+        if [ "$TOTAL_SIZE_KB" -gt 10240 ]; then
+          echo "ERROR: Repository exceeds 10 MB limit!"
+          exit 1
+        fi
+        echo "Repository size is strictly within limits (< 10 MB)."
+
+    - name: Verify Governance Compliance Files
+      run: |
+        test -f LICENSE || exit 1
+        test -f SECURITY.md || exit 1
+        test -f ACCESSIBILITY.md || exit 1
+        echo "All governance files (LICENSE, SECURITY, ACCESSIBILITY) verified."
