@@ -207,18 +207,18 @@
             <span class="brand-dot"></span>
             <span class="font-label uppercase text-white" style="font-size: 0.9rem;">AIRLOOP INTELLIGENCE CONSOLE</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.72rem; color: #34d399; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 4px 10px; border-radius: var(--radius-sm);">
-            <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
-            <span>AI ENGINE: GOOGLE GEMINI (CONNECTED)</span>
+          <div id="ai-engine-badge" style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.72rem; color: #34d399; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; padding: 4px 10px; border-radius: var(--radius-sm); cursor: pointer;" title="Click to test or configure Gemini connection">
+            <span id="ai-engine-dot" style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px #10b981;"></span>
+            <span id="ai-engine-text">AI ENGINE: CHECKING STATUS...</span>
           </div>
         </div>
 
         <div id="engine-status-bar" style="background: rgba(16, 185, 129, 0.05); border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding: 0.45rem 1.5rem; font-family: var(--font-mono); font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-          <span style="color: #6ee7b7;">
+          <span id="engine-status-desc" style="color: #6ee7b7;">
             ⚡ <strong>GEMINI CLINICAL AI:</strong> Real-time atmospheric health intelligence powered by Google Gemini.
           </span>
           <span style="color: var(--text-dim); font-family: var(--font-mono); font-size: 0.68rem;">
-            DEPLOYMENT PROXY ACTIVE · EVIDENCE-BASED
+            <a href="javascript:void(0)" id="toggle-key-modal" style="color:var(--text-muted); text-decoration:underline;">API KEY DIAGNOSTICS & TEST ⚙</a>
           </span>
         </div>
 
@@ -241,6 +241,40 @@
           <input type="text" class="chat-input" id="coach-input" placeholder="Ask any clinical air quality question (e.g. 'Can my asthmatic parent go to the temple?', 'Best mask for toddlers?')..." autocomplete="off">
           <button type="submit" class="btn btn-solid-red">CONSULT ↵</button>
         </form>
+      </div>
+    </div>
+
+    <!-- Key Diagnostics & Testing Modal -->
+    <div id="key-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem;">
+      <div style="background: #111116; border: 1px solid var(--border); border-radius: var(--radius-md); max-width: 520px; width: 100%; padding: 1.75rem; box-shadow: 0 20px 40px rgba(0,0,0,0.8);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div style="font-family: var(--font-condensed); font-size: 1.25rem; font-weight: 700; color: #fff;">
+            GOOGLE GEMINI API DIAGNOSTICS & SETUP
+          </div>
+          <button id="close-key-modal" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">✕</button>
+        </div>
+
+        <div id="modal-status-box" style="padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem; font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.5; background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+          Checking backend connection...
+        </div>
+
+        <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1rem;">
+          <strong class="text-white">To link Gemini in Vercel:</strong><br>
+          1. Go to <a href="https://vercel.com/dashboard" target="_blank" style="color:var(--red-light); text-decoration:underline;">Vercel Project Settings</a> → <strong>Environment Variables</strong>.<br>
+          2. Ensure variable name is <code style="color:#6ee7b7; background:#0c0c10; padding:2px 4px;">GEMINI_API_KEY</code>.<br>
+          3. <strong style="color:#fca5a5;">Important:</strong> After adding a variable, go to <strong>Deployments</strong> → click <strong>Redeploy</strong> for the key to take effect!
+        </div>
+
+        <div style="border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem;">
+          <label style="display: block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+            INSTANT SESSION KEY (OPTIONAL · ACTIVATES LIVE CHAT IMMEDIATELY):
+          </label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="password" id="modal-key-input" placeholder="AIzaSy..." style="flex: 1; background: #0c0c0f; border: 1px solid var(--border); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); color: #fff; font-family: var(--font-mono); font-size: 0.8rem; outline: none;">
+            <button id="modal-save-key-btn" class="btn btn-sm btn-solid-red" style="white-space: nowrap;">TEST & ACTIVATE</button>
+          </div>
+          <div id="modal-test-msg" style="font-family: var(--font-mono); font-size: 0.72rem; margin-top: 0.5rem; display: none;"></div>
+        </div>
       </div>
     </div>
   </main>
@@ -356,11 +390,24 @@
         }
       }
 
-      function addMessage(html, isUser = false) {
+      function addMessage(html, isUser = false, meta = null) {
         const bubble = document.createElement('div');
         bubble.className = `chat-bubble ${isUser ? 'user' : 'assistant'}`;
-        if (isUser) bubble.textContent = html;
-        else bubble.innerHTML = html;
+        if (isUser) {
+          bubble.textContent = html;
+        } else {
+          let badgeHtml = '';
+          if (meta) {
+            if (meta.provider === 'Google Gemini' || meta.geminiSuccess) {
+              badgeHtml = `<div style="font-family:var(--font-mono); font-size:0.68rem; color:#34d399; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem; padding-bottom:0.4rem; border-bottom:1px solid rgba(16,185,129,0.2);"><span style="width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span>⚡ <strong>POWERED BY GOOGLE GEMINI</strong> (${meta.engine || 'gemini-1.5-flash'}) · REAL-TIME AI</div>`;
+            } else if (meta.geminiError) {
+              badgeHtml = `<div style="font-family:var(--font-mono); font-size:0.68rem; color:#f87171; margin-bottom:0.5rem; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); padding:4px 8px; border-radius:3px; line-height:1.4;">⚠️ <strong>GEMINI API NOTICE:</strong> ${meta.geminiError}<br><span style="color:#d1d5db;">Displaying evidence-based clinical pulmonology protocol below:</span></div>`;
+            } else {
+              badgeHtml = `<div style="font-family:var(--font-mono); font-size:0.68rem; color:#fbbf24; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem; padding-bottom:0.4rem; border-bottom:1px solid rgba(245,158,11,0.2);"><span style="width:6px; height:6px; border-radius:50%; background:#f59e0b;"></span>📋 <strong>CLINICAL PROTOCOL ENGINE</strong> · Evidence-Based Pulmonology Heuristics</div>`;
+            }
+          }
+          bubble.innerHTML = badgeHtml + html;
+        }
         messages.appendChild(bubble);
         messages.scrollTop = messages.scrollHeight;
       }
@@ -466,6 +513,7 @@
           const c = getCityData();
           const profiles = getActiveProfiles();
           const routine = getActiveRoutine().map(id => MOVE_NAMES[id] || `Move #${id}`);
+          const sessionKey = sessionStorage.getItem('airloop_gemini_key') || undefined;
 
           const context = {
             city: c.name,
@@ -483,14 +531,14 @@
           const res = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ q, context })
+            body: JSON.stringify({ q, context, apiKey: sessionKey })
           });
 
           if (res.ok) {
             const data = await res.json();
             if (data.html) {
               typing.remove();
-              addMessage(data.html);
+              addMessage(data.html, false, data);
               return;
             }
           }
@@ -502,7 +550,7 @@
         setTimeout(() => {
           typing.remove();
           const reply = handleOfflineHeuristicQuery(q);
-          addMessage(reply);
+          addMessage(reply, false, { provider: 'Clinical Engine', engine: 'offline-heuristics' });
         }, 400);
       }
 
@@ -521,8 +569,136 @@
         });
       });
 
+      // ----------------------------------------------------------------------
+      // Diagnostics Modal & Dynamic Status Checking
+      // ----------------------------------------------------------------------
+      const keyModal = document.getElementById('key-modal');
+      const toggleBtn = document.getElementById('toggle-key-modal');
+      const closeBtn = document.getElementById('close-key-modal');
+      const badgeElem = document.getElementById('ai-engine-badge');
+      const dotElem = document.getElementById('ai-engine-dot');
+      const textElem = document.getElementById('ai-engine-text');
+      const barDescElem = document.getElementById('engine-status-desc');
+      const statusBox = document.getElementById('modal-status-box');
+      const keyInput = document.getElementById('modal-key-input');
+      const saveKeyBtn = document.getElementById('modal-save-key-btn');
+      const testMsg = document.getElementById('modal-test-msg');
+
+      function openModal() {
+        keyModal.style.display = 'flex';
+        checkBackendStatus();
+      }
+
+      function closeModal() {
+        keyModal.style.display = 'none';
+      }
+
+      if (toggleBtn) toggleBtn.addEventListener('click', openModal);
+      if (badgeElem) badgeElem.addEventListener('click', openModal);
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+      async function checkBackendStatus() {
+        const sessionKey = sessionStorage.getItem('airloop_gemini_key');
+        if (sessionKey && keyInput && !keyInput.value) {
+          keyInput.value = sessionKey;
+        }
+
+        try {
+          const res = await fetch('/api/status');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.geminiConfigured || sessionKey) {
+              dotElem.style.background = '#10b981';
+              dotElem.style.boxShadow = '0 0 6px #10b981';
+              badgeElem.style.borderColor = '#10b981';
+              badgeElem.style.color = '#34d399';
+              badgeElem.style.background = 'rgba(16, 185, 129, 0.1)';
+              textElem.textContent = sessionKey ? 'AI ENGINE: GEMINI (SESSION ACTIVE)' : 'AI ENGINE: GOOGLE GEMINI (CONNECTED)';
+              if (barDescElem) {
+                barDescElem.innerHTML = `⚡ <strong>GEMINI CLINICAL AI:</strong> Real-time atmospheric health intelligence powered by Google Gemini (${data.model || 'gemini-1.5-flash'}).`;
+              }
+              if (statusBox) {
+                statusBox.innerHTML = `
+                  <div style="color:#34d399; font-weight:600; margin-bottom:0.25rem;">✅ Google Gemini Connected (${data.model || 'gemini-1.5-flash'})</div>
+                  <div style="color:var(--text-muted);">Source: ${sessionKey ? 'Browser Session Storage' : 'Deployment Environment (' + (data.keyPrefix || 'active') + ')'}</div>
+                `;
+              }
+              return;
+            }
+          }
+        } catch (e) {}
+
+        // Not detected
+        dotElem.style.background = '#f59e0b';
+        dotElem.style.boxShadow = '0 0 6px #f59e0b';
+        badgeElem.style.borderColor = '#f59e0b';
+        badgeElem.style.color = '#fbbf24';
+        badgeElem.style.background = 'rgba(245, 158, 11, 0.1)';
+        textElem.textContent = 'AI ENGINE: GEMINI KEY PENDING (VERIFY)';
+        if (barDescElem) {
+          barDescElem.innerHTML = `⚠️ <strong>GEMINI KEY PENDING:</strong> Deployment environment variable not active on current build. <a href="javascript:void(0)" onclick="document.getElementById('key-modal').style.display='flex'" style="color:#fbbf24; text-decoration:underline;">Click to check status or enter session key</a>.`;
+        }
+        if (statusBox) {
+          statusBox.innerHTML = `
+            <div style="color:#fbbf24; font-weight:600; margin-bottom:0.25rem;">⚠️ No Active Deployment Key Detected</div>
+            <div style="color:var(--text-muted); font-size:0.75rem;">If you recently added <code>GEMINI_API_KEY</code> in Vercel settings, you must click <strong>Redeploy</strong> in Vercel for the changes to apply!</div>
+          `;
+        }
+      }
+
+      if (saveKeyBtn) {
+        saveKeyBtn.addEventListener('click', async () => {
+          const key = keyInput.value.trim();
+          if (!key) {
+            sessionStorage.removeItem('airloop_gemini_key');
+            testMsg.style.display = 'block';
+            testMsg.style.color = '#f87171';
+            testMsg.textContent = 'Cleared session key.';
+            checkBackendStatus();
+            return;
+          }
+
+          saveKeyBtn.disabled = true;
+          saveKeyBtn.textContent = 'TESTING...';
+          testMsg.style.display = 'block';
+          testMsg.style.color = '#9ca3af';
+          testMsg.textContent = 'Connecting to Google Gemini API...';
+
+          try {
+            const r = await fetch('/api/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ q: 'ping', apiKey: key, context: { city: 'Test', aqi: 100 } })
+            });
+            const j = await r.json();
+            if (j.geminiSuccess || j.provider === 'Google Gemini') {
+              sessionStorage.setItem('airloop_gemini_key', key);
+              testMsg.style.color = '#34d399';
+              testMsg.textContent = `✅ Successfully connected to Google Gemini (${j.engine})! Active for this session.`;
+              checkBackendStatus();
+              setTimeout(closeModal, 1200);
+            } else if (j.geminiError) {
+              testMsg.style.color = '#f87171';
+              testMsg.textContent = `❌ Gemini error: ${j.geminiError}`;
+            } else {
+              sessionStorage.setItem('airloop_gemini_key', key);
+              testMsg.style.color = '#34d399';
+              testMsg.textContent = 'Key saved to browser session.';
+              checkBackendStatus();
+            }
+          } catch (err) {
+            testMsg.style.color = '#f87171';
+            testMsg.textContent = `Connection error: ${err.message}`;
+          } finally {
+            saveKeyBtn.disabled = false;
+            saveKeyBtn.textContent = 'TEST & ACTIVATE';
+          }
+        });
+      }
+
       // Initialize
       syncHouseholdProfile();
+      checkBackendStatus();
     })();
   </script>
 </body>

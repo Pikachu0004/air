@@ -51,9 +51,16 @@ Vercel natively serves all static HTML pages and automatically turns `/api/chat.
 2. Go to [vercel.com/new](https://vercel.com/new).
 3. Import your `urbanair` repository.
 4. In **Environment Variables**, add:
-   - `GEMINI_API_KEY`: `AIzaSy...`
-   - `GEMINI_MODEL`: `gemini-1.5-flash`
+   - Key: `GEMINI_API_KEY`
+   - Value: `AIzaSy...` (Make sure all checkboxes: Production, Preview, Development are checked)
 5. Click **Deploy**. Your app will be live on a `*.vercel.app` URL with SSL!
+
+> [!IMPORTANT]
+> **If you already deployed before adding the Environment Variable:**
+> In Vercel, environment variables only apply to builds created **after** the variable is saved.
+> 1. Go to your Vercel Project Dashboard → **Deployments**.
+> 2. Click the three dots `...` next to the latest deployment → Click **Redeploy**.
+> 3. Your new deployment will now have `GEMINI_API_KEY` active!
 
 ---
 

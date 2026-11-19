@@ -23,7 +23,26 @@ try {
 } catch (e) {}
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
+
+function resolveApiKey(clientKey) {
+  const candidates = [
+    clientKey,
+    process.env.GEMINI_API_KEY,
+    process.env.GOOGLE_API_KEY,
+    process.env.GEMINI_KEY,
+    process.env.GOOGLE_GEMINI_API_KEY,
+    process.env.GEMINI_AI_API_KEY,
+    process.env.API_KEY
+  ];
+  for (const c of candidates) {
+    if (typeof c === 'string') {
+      const clean = c.trim().replace(/^["']|["']$/g, '');
+      if (clean.length > 5) return clean;
+    }
+  }
+  return '';
+}
+
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 
 // Statically read and cache HTML templates in memory
@@ -143,6 +162,22 @@ const server = http.createServer(async (req, res) => {
   }
 
   // --------------------------------------------------------------------------
+  // API Route: GET /api/status (Health & Key Diagnosis)
+  // --------------------------------------------------------------------------
+  if (pathname === '/api/status' && req.method === 'GET') {
+    const key = resolveApiKey();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      geminiConfigured: Boolean(key),
+      keyPrefix: key ? `${key.slice(0, 6)}...${key.slice(-4)}` : null,
+      model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+      platform: process.env.VERCEL ? 'Vercel Edge' : 'Full-Stack Server',
+      nodeEnv: process.env.NODE_ENV || 'production'
+    }));
+    return;
+  }
+
+  // --------------------------------------------------------------------------
   // API Route: POST /api/chat
   // --------------------------------------------------------------------------
   if (pathname === '/api/chat' && req.method === 'POST') {
@@ -153,7 +188,7 @@ const server = http.createServer(async (req, res) => {
         const payload = JSON.parse(body || '{}');
         const q = payload.q || '';
         const context = payload.context || {};
-        const apiKey = payload.apiKey || GEMINI_API_KEY;
+        const apiKey = resolveApiKey(payload.apiKey);
 
         if (!q) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -173,28 +208,50 @@ Rules:
 3. Include diurnal awareness: highlight the solar purge window (13:00 - 15:30) when the inversion boundary opens, and warn against morning exercise during nocturnal traps (06:00 - 09:00).
 4. Never give formal medical diagnosis. If chest pain or severe breathlessness is mentioned, issue an immediate emergency clinical alert.`;
 
-        // 1. Google Gemini API Call if Key Available
-        if (apiKey) {
-          try {
-            const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\nUser Question: ${q}` }] }],
-                generationConfig: { temperature: 0.35, maxOutputTokens: 600 }
-              })
-            });
+        let lastError = null;
 
-            const geminiData = await geminiRes.json();
-            if (geminiData.candidates && geminiData.candidates[0]?.content?.parts?.[0]?.text) {
-              const rawHtml = geminiData.candidates[0].content.parts[0].text;
-              const cleanHtml = rawHtml.replace(/^```html\s*|\s*```$/gi, '').trim();
-              res.writeHead(200, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({ html: cleanHtml, engine: GEMINI_MODEL, provider: 'Google Gemini' }));
-              return;
+        // 1. Google Gemini API Call with Multi-Model Fallback Chain
+        if (apiKey) {
+          const candidateModels = [
+            process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+            'gemini-2.0-flash',
+            'gemini-1.5-pro'
+          ];
+
+          for (const model of candidateModels) {
+            try {
+              const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\nUser Question: ${q}` }] }],
+                  generationConfig: { temperature: 0.35, maxOutputTokens: 600 }
+                })
+              });
+
+              const geminiData = await geminiRes.json();
+              if (geminiData.error) {
+                lastError = geminiData.error.message || `Error code ${geminiData.error.code}`;
+                console.error(`Gemini model ${model} error:`, lastError);
+                continue; // Try next candidate model
+              }
+
+              if (geminiData.candidates && geminiData.candidates[0]?.content?.parts?.[0]?.text) {
+                const rawHtml = geminiData.candidates[0].content.parts[0].text;
+                const cleanHtml = rawHtml.replace(/^```html\s*|\s*```$/gi, '').trim();
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                  html: cleanHtml,
+                  engine: model,
+                  provider: 'Google Gemini',
+                  geminiSuccess: true
+                }));
+                return;
+              }
+            } catch (e) {
+              lastError = e.message;
+              console.error(`Gemini call error on ${model}:`, e.message);
             }
-          } catch (e) {
-            console.error('Gemini call error:', e.message);
           }
         }
 
@@ -204,7 +261,7 @@ Rules:
 
         if (qLow.includes('chest') || qLow.includes('breath') || qLow.includes('pain') || qLow.includes('emergency')) {
           fallbackHtml = `
-            <b style="color:var(--red-light);">EMERGENCY CLINICAL TRIAGE · ${city} · AQI ${aqi}</b>
+            <b style="color:var(--red-light, #f87171);">EMERGENCY CLINICAL TRIAGE · ${city} · AQI ${aqi}</b>
             <ul>
               <li><strong>Immediate Medical Attention:</strong> Symptoms of acute respiratory distress or chest tightness in AQI >300 require immediate medical evaluation.</li>
               <li><strong>Emergency Contact:</strong> Dial 112 (National Emergency) or 102 (Ambulance Service) immediately.</li>
@@ -236,7 +293,13 @@ Rules:
         }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ html: fallbackHtml, engine: 'clinical-heuristics', provider: 'Deployment Engine' }));
+        res.end(JSON.stringify({
+          html: fallbackHtml,
+          engine: 'clinical-heuristics',
+          provider: 'Deployment Engine',
+          geminiConfigured: Boolean(apiKey),
+          geminiError: lastError
+        }));
       } catch (err) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: err.message }));

@@ -4647,10 +4647,11 @@
             profile: Array.from(state.activeProfiles),
             routine: Array.from(state.routine)
           };
+          const sessionKey = sessionStorage.getItem('airloop_gemini_key') || undefined;
           const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ q: userQuery, context })
+            body: JSON.stringify({ q: userQuery, context, apiKey: sessionKey })
           });
           if (response.ok) {
             const resData = await response.json();
