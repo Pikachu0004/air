@@ -1,7 +1,10 @@
 {
-  "version": 2,
   "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" }
+    { "source": "/assistant", "destination": "/assistant.html" },
+    { "source": "/cadr-lab", "destination": "/cadr-lab.html" },
+    { "source": "/diurnal-radar", "destination": "/diurnal-radar.html" },
+    { "source": "/community", "destination": "/community.html" }
   ]
 }

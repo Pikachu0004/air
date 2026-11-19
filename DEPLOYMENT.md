@@ -59,14 +59,14 @@ Vercel natively serves all static HTML pages and automatically turns `/api/chat.
 
 ## 🚅 Option 2: Deploy to Render / Railway (Full-Stack Node.js)
 
-Since AirLoop includes `server.js` and `package.json`, it can run as a long-running Node.js web service.
+Since AirLoop includes `local-server.js` and `package.json`, it can also run as a long-running Node.js web service.
 
 ### On Render (render.com):
 1. Create a new **Web Service** and connect your GitHub repository.
 2. Configure settings:
    - **Environment**: `Node`
    - **Build Command**: `npm install` (or leave empty)
-   - **Start Command**: `npm start` (runs `node server.js`)
+   - **Start Command**: `npm start` (runs `node local-server.js`)
 3. Under **Environment Variables**, add:
    - `GEMINI_API_KEY`: `AIzaSy...`
    - `PORT`: `10000` (Render defaults to 10000)
@@ -74,7 +74,7 @@ Since AirLoop includes `server.js` and `package.json`, it can run as a long-runn
 
 ### On Railway (railway.app):
 1. Click **New Project** → **Deploy from GitHub repo**.
-2. Select `urbanair`. Railway automatically detects `server.js`.
+2. Select `urbanair`. Railway automatically runs `npm start`.
 3. In **Variables**, add:
    - `GEMINI_API_KEY`: `AIzaSy...`
 4. Railway will deploy and assign a public domain.
