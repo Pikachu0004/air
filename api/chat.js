@@ -21,62 +21,78 @@ function resolveApiKey(clientKey) {
   return '';
 }
 
-// In-memory model cache to avoid repeated discovery calls
-let cachedModelPath = null;
-let cachedApiVersion = 'v1beta';
-
-async function discoverModel(apiKey) {
-  if (cachedModelPath) return { apiVersion: cachedApiVersion, modelPath: cachedModelPath };
-
+// Fetch live models directly supported by the user's specific API key
+async function fetchGoogleModelManifest(apiKey) {
   const versions = ['v1beta', 'v1'];
   for (const ver of versions) {
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/${ver}/models?key=${apiKey}`);
-      if (res.ok) {
-        const data = await res.json();
-        const models = (data.models || []).filter(m =>
-          Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent')
-        );
-
-        if (models.length > 0) {
-          const preferred =
-            models.find(m => m.name.includes('gemini-2.0-flash') && !m.name.includes('exp')) ||
-            models.find(m => m.name.includes('gemini-1.5-flash') && !m.name.includes('latest')) ||
-            models.find(m => m.name.includes('gemini-1.5-flash-latest')) ||
-            models.find(m => m.name.includes('gemini-2.0-flash-exp')) ||
-            models.find(m => m.name.includes('flash')) ||
-            models[0];
-
-          cachedApiVersion = ver;
-          cachedModelPath = preferred.name;
-          return { apiVersion: cachedApiVersion, modelPath: cachedModelPath };
+      const url = `https://generativelanguage.googleapis.com/${ver}/models?key=${apiKey}`;
+      const res = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey
         }
-      }
-    } catch (e) {}
-  }
+      });
+      const data = await res.json();
+      if (data.models && Array.isArray(data.models) && data.models.length > 0) {
+        const generationModels = data.models
+          .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+          .map(m => ({
+            name: m.name, // e.g. "models/gemini-1.5-flash"
+            displayName: m.displayName || m.name,
+            version: ver
+          }));
 
-  return { apiVersion: 'v1beta', modelPath: 'models/gemini-1.5-flash' };
+        if (generationModels.length > 0) {
+          // Sort with preference: 2.0-flash, 1.5-flash, flash-8b, any flash, pro
+          generationModels.sort((a, b) => {
+            const getScore = (item) => {
+              const n = item.name.toLowerCase();
+              if (n.includes('2.0-flash') && !n.includes('exp')) return 100;
+              if (n.includes('1.5-flash') && !n.includes('8b')) return 90;
+              if (n.includes('2.5-flash')) return 85;
+              if (n.includes('1.5-flash-8b')) return 80;
+              if (n.includes('flash')) return 70;
+              if (n.includes('1.5-pro')) return 60;
+              return 10;
+            };
+            return getScore(b) - getScore(a);
+          });
+
+          return { success: true, apiVersion: ver, models: generationModels };
+        }
+      } else if (data.error) {
+        return { success: false, apiVersion: ver, error: data.error.message || `Code ${data.error.code}` };
+      }
+    } catch (e) {
+      // try next version
+    }
+  }
+  return { success: false, error: 'Could not contact Google ModelService' };
 }
 
 export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-goog-api-key');
 
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
   }
 
-  // Diagnostics: GET /api/chat
+  // Diagnostics: GET /api/chat or GET /api/status
   if (req.method === 'GET') {
-    const key = resolveApiKey();
+    const key = resolveApiKey(req.query?.apiKey);
+    let manifest = null;
+    if (key) {
+      manifest = await fetchGoogleModelManifest(key);
+    }
     return res.status(200).json({
       status: 'ok',
       geminiConfigured: Boolean(key),
       keyPrefix: key ? `${key.slice(0, 6)}...${key.slice(-4)}` : null,
-      model: cachedModelPath || 'gemini-1.5-flash',
-      apiVersion: cachedApiVersion
+      manifest: manifest
     });
   }
 
@@ -105,35 +121,40 @@ Rules:
 
   let lastError = null;
 
-  // 1. Google Gemini via Model Discovery & Adaptive Routing
+  // 1. Google Gemini via Live Model Discovery & Execution
   if (geminiKey) {
-    const discovered = await discoverModel(geminiKey);
-    const targetAttempts = [
-      { ver: discovered.apiVersion, model: discovered.modelPath },
-      { ver: 'v1beta', model: 'models/gemini-1.5-flash' },
-      { ver: 'v1', model: 'models/gemini-1.5-flash' },
-      { ver: 'v1beta', model: 'models/gemini-2.0-flash' },
-      { ver: 'v1', model: 'models/gemini-2.0-flash' },
-      { ver: 'v1beta', model: 'models/gemini-1.5-flash-latest' },
-      { ver: 'v1beta', model: 'models/gemini-2.0-flash-exp' }
-    ];
+    const manifest = await fetchGoogleModelManifest(geminiKey);
 
-    const seen = new Set();
-    const attempts = targetAttempts.filter(a => {
-      const k = `${a.ver}:${a.model}`;
-      if (seen.has(k)) return false;
-      seen.add(k);
-      return true;
-    });
+    let modelsToTry = [];
+    if (manifest.success && manifest.models && manifest.models.length > 0) {
+      modelsToTry = manifest.models.map(m => ({ ver: m.version, model: m.name }));
+    } else {
+      if (manifest.error) {
+        lastError = manifest.error;
+      }
+      // Standard static fallback list
+      modelsToTry = [
+        { ver: 'v1beta', model: 'models/gemini-1.5-flash' },
+        { ver: 'v1', model: 'models/gemini-1.5-flash' },
+        { ver: 'v1beta', model: 'models/gemini-2.0-flash' },
+        { ver: 'v1', model: 'models/gemini-2.0-flash' },
+        { ver: 'v1beta', model: 'models/gemini-1.5-flash-8b' },
+        { ver: 'v1beta', model: 'models/gemini-1.5-pro' },
+        { ver: 'v1', model: 'models/gemini-pro' }
+      ];
+    }
 
-    for (const attempt of attempts) {
-      const cleanModel = attempt.model.startsWith('models/') ? attempt.model : `models/${attempt.model}`;
-      const url = `https://generativelanguage.googleapis.com/${attempt.ver}/${cleanModel}:generateContent?key=${geminiKey}`;
+    for (const item of modelsToTry) {
+      const cleanModel = item.model.startsWith('models/') ? item.model : `models/${item.model}`;
+      const url = `https://generativelanguage.googleapis.com/${item.ver}/${cleanModel}:generateContent?key=${geminiKey}`;
 
       try {
         const r = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': geminiKey
+          },
           body: JSON.stringify({
             contents: [
               {
@@ -149,19 +170,18 @@ Rules:
 
         const j = await r.json();
         if (j.error) {
-          lastError = j.error.message || `Error ${j.error.code}`;
-          continue;
+          lastError = j.error.message || `Error code ${j.error.code}`;
+          console.warn(`[Gemini Attempt] ${item.ver}/${cleanModel} failed:`, lastError);
+          continue; // Try next model from manifest
         }
 
         const rawText = j.candidates?.[0]?.content?.parts?.[0]?.text || '';
         if (rawText) {
           const cleanHtml = rawText.replace(/^```html\s*|\s*```$/gi, '').trim();
-          cachedApiVersion = attempt.ver;
-          cachedModelPath = cleanModel;
           return res.status(200).json({
             html: cleanHtml,
             engine: cleanModel.replace('models/', ''),
-            apiVersion: attempt.ver,
+            apiVersion: item.ver,
             provider: 'Google Gemini',
             geminiSuccess: true
           });

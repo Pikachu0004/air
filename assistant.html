@@ -618,9 +618,19 @@
                 barDescElem.innerHTML = `⚡ <strong>GEMINI CLINICAL AI:</strong> Real-time atmospheric health intelligence powered by Google Gemini (${data.model || 'gemini-1.5-flash'}).`;
               }
               if (statusBox) {
+                let manifestInfo = '';
+                if (data.manifest) {
+                  if (data.manifest.success && data.manifest.models) {
+                    const topModels = data.manifest.models.slice(0, 3).map(m => m.name.replace('models/', '')).join(', ');
+                    manifestInfo = `<div style="color:#6ee7b7; font-size:0.72rem; margin-top:0.25rem;">Active Models on Google API: <code>${topModels}</code></div>`;
+                  } else if (data.manifest.error) {
+                    manifestInfo = `<div style="color:#f87171; font-size:0.72rem; margin-top:0.25rem;">Google Notice: ${data.manifest.error}</div>`;
+                  }
+                }
                 statusBox.innerHTML = `
-                  <div style="color:#34d399; font-weight:600; margin-bottom:0.25rem;">✅ Google Gemini Connected (${data.model || 'gemini-1.5-flash'})</div>
-                  <div style="color:var(--text-muted);">Source: ${sessionKey ? 'Browser Session Storage' : 'Deployment Environment (' + (data.keyPrefix || 'active') + ')'}</div>
+                  <div style="color:#34d399; font-weight:600; margin-bottom:0.25rem;">✅ Google Gemini Key Active</div>
+                  <div style="color:var(--text-muted); font-size:0.75rem;">Source: ${sessionKey ? 'Browser Session Storage' : 'Deployment Environment (' + (data.keyPrefix || 'active') + ')'}</div>
+                  ${manifestInfo}
                 `;
               }
               return;
@@ -641,7 +651,7 @@
         if (statusBox) {
           statusBox.innerHTML = `
             <div style="color:#fbbf24; font-weight:600; margin-bottom:0.25rem;">⚠️ No Active Deployment Key Detected</div>
-            <div style="color:var(--text-muted); font-size:0.75rem;">If you recently added <code>GEMINI_API_KEY</code> in Vercel settings, you must click <strong>Redeploy</strong> in Vercel for the changes to apply!</div>
+            <div style="color:var(--text-muted); font-size:0.75rem;">If you recently added <code>GEMINI_API_KEY</code> in Vercel settings, remember to click <strong>Redeploy</strong> in Vercel for the changes to apply! Or enter your key below to activate instantly.</div>
           `;
         }
       }

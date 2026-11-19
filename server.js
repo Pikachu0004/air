@@ -43,41 +43,53 @@ function resolveApiKey(clientKey) {
   return '';
 }
 
-// In-memory model cache to avoid repeated discovery calls
-let cachedModelPath = null;
-let cachedApiVersion = 'v1beta';
-
-async function discoverModel(apiKey) {
-  if (cachedModelPath) return { apiVersion: cachedApiVersion, modelPath: cachedModelPath };
-
+// Fetch live models directly supported by the user's specific API key
+async function fetchGoogleModelManifest(apiKey) {
   const versions = ['v1beta', 'v1'];
   for (const ver of versions) {
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/${ver}/models?key=${apiKey}`);
-      if (res.ok) {
-        const data = await res.json();
-        const models = (data.models || []).filter(m =>
-          Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent')
-        );
-
-        if (models.length > 0) {
-          const preferred =
-            models.find(m => m.name.includes('gemini-2.0-flash') && !m.name.includes('exp')) ||
-            models.find(m => m.name.includes('gemini-1.5-flash') && !m.name.includes('latest')) ||
-            models.find(m => m.name.includes('gemini-1.5-flash-latest')) ||
-            models.find(m => m.name.includes('gemini-2.0-flash-exp')) ||
-            models.find(m => m.name.includes('flash')) ||
-            models[0];
-
-          cachedApiVersion = ver;
-          cachedModelPath = preferred.name;
-          return { apiVersion: cachedApiVersion, modelPath: cachedModelPath };
+      const url = `https://generativelanguage.googleapis.com/${ver}/models?key=${apiKey}`;
+      const res = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey
         }
-      }
-    } catch (e) {}
-  }
+      });
+      const data = await res.json();
+      if (data.models && Array.isArray(data.models) && data.models.length > 0) {
+        const generationModels = data.models
+          .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+          .map(m => ({
+            name: m.name, // e.g. "models/gemini-1.5-flash"
+            displayName: m.displayName || m.name,
+            version: ver
+          }));
 
-  return { apiVersion: 'v1beta', modelPath: 'models/gemini-1.5-flash' };
+        if (generationModels.length > 0) {
+          generationModels.sort((a, b) => {
+            const getScore = (item) => {
+              const n = item.name.toLowerCase();
+              if (n.includes('2.0-flash') && !n.includes('exp')) return 100;
+              if (n.includes('1.5-flash') && !n.includes('8b')) return 90;
+              if (n.includes('2.5-flash')) return 85;
+              if (n.includes('1.5-flash-8b')) return 80;
+              if (n.includes('flash')) return 70;
+              if (n.includes('1.5-pro')) return 60;
+              return 10;
+            };
+            return getScore(b) - getScore(a);
+          });
+
+          return { success: true, apiVersion: ver, models: generationModels };
+        }
+      } else if (data.error) {
+        return { success: false, apiVersion: ver, error: data.error.message || `Code ${data.error.code}` };
+      }
+    } catch (e) {
+      // try next version
+    }
+  }
+  return { success: false, error: 'Could not contact Google ModelService' };
 }
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
@@ -202,14 +214,17 @@ const server = http.createServer(async (req, res) => {
   // API Route: GET /api/status (Health & Key Diagnosis)
   // --------------------------------------------------------------------------
   if (pathname === '/api/status' && req.method === 'GET') {
-    const key = resolveApiKey();
+    const key = resolveApiKey(parsedUrl.query?.apiKey);
+    let manifest = null;
+    if (key) {
+      manifest = await fetchGoogleModelManifest(key);
+    }
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       geminiConfigured: Boolean(key),
       keyPrefix: key ? `${key.slice(0, 6)}...${key.slice(-4)}` : null,
-      model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
       platform: process.env.VERCEL ? 'Vercel Edge' : 'Full-Stack Server',
-      nodeEnv: process.env.NODE_ENV || 'production'
+      manifest: manifest
     }));
     return;
   }
@@ -247,35 +262,39 @@ Rules:
 
         let lastError = null;
 
-        // 1. Google Gemini via Model Discovery & Adaptive Routing
+        // 1. Google Gemini via Live Model Discovery & Execution
         if (apiKey) {
-          const discovered = await discoverModel(apiKey);
-          const targetAttempts = [
-            { ver: discovered.apiVersion, model: discovered.modelPath },
-            { ver: 'v1beta', model: 'models/gemini-1.5-flash' },
-            { ver: 'v1', model: 'models/gemini-1.5-flash' },
-            { ver: 'v1beta', model: 'models/gemini-2.0-flash' },
-            { ver: 'v1', model: 'models/gemini-2.0-flash' },
-            { ver: 'v1beta', model: 'models/gemini-1.5-flash-latest' },
-            { ver: 'v1beta', model: 'models/gemini-2.0-flash-exp' }
-          ];
+          const manifest = await fetchGoogleModelManifest(apiKey);
 
-          const seen = new Set();
-          const attempts = targetAttempts.filter(a => {
-            const k = `${a.ver}:${a.model}`;
-            if (seen.has(k)) return false;
-            seen.add(k);
-            return true;
-          });
+          let modelsToTry = [];
+          if (manifest.success && manifest.models && manifest.models.length > 0) {
+            modelsToTry = manifest.models.map(m => ({ ver: m.version, model: m.name }));
+          } else {
+            if (manifest.error) {
+              lastError = manifest.error;
+            }
+            modelsToTry = [
+              { ver: 'v1beta', model: 'models/gemini-1.5-flash' },
+              { ver: 'v1', model: 'models/gemini-1.5-flash' },
+              { ver: 'v1beta', model: 'models/gemini-2.0-flash' },
+              { ver: 'v1', model: 'models/gemini-2.0-flash' },
+              { ver: 'v1beta', model: 'models/gemini-1.5-flash-8b' },
+              { ver: 'v1beta', model: 'models/gemini-1.5-pro' },
+              { ver: 'v1', model: 'models/gemini-pro' }
+            ];
+          }
 
-          for (const attempt of attempts) {
-            const cleanModel = attempt.model.startsWith('models/') ? attempt.model : `models/${attempt.model}`;
-            const url = `https://generativelanguage.googleapis.com/${attempt.ver}/${cleanModel}:generateContent?key=${apiKey}`;
+          for (const item of modelsToTry) {
+            const cleanModel = item.model.startsWith('models/') ? item.model : `models/${item.model}`;
+            const url = `https://generativelanguage.googleapis.com/${item.ver}/${cleanModel}:generateContent?key=${apiKey}`;
 
             try {
               const geminiRes = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-goog-api-key': apiKey
+                },
                 body: JSON.stringify({
                   contents: [
                     {
@@ -291,20 +310,18 @@ Rules:
 
               const geminiData = await geminiRes.json();
               if (geminiData.error) {
-                lastError = geminiData.error.message || `Error ${geminiData.error.code}`;
-                continue;
+                lastError = geminiData.error.message || `Error code ${geminiData.error.code}`;
+                continue; // Try next model from manifest
               }
 
               const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
               if (rawText) {
                 const cleanHtml = rawText.replace(/^```html\s*|\s*```$/gi, '').trim();
-                cachedApiVersion = attempt.ver;
-                cachedModelPath = cleanModel;
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
                   html: cleanHtml,
                   engine: cleanModel.replace('models/', ''),
-                  apiVersion: attempt.ver,
+                  apiVersion: item.ver,
                   provider: 'Google Gemini',
                   geminiSuccess: true
                 }));
